@@ -18,7 +18,7 @@ export default function Login(props) {
         }
         if (data[0].website === password) navigation("/");
         else {
-          return console.log("password wrong",data);
+          return console.log("password wrong!!!!",data);
         }
       })
       .catch((error) => {

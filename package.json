@@ -33,5 +33,13 @@
   },
   "overrides": {
     "vite": "npm:rolldown-vite@7.2.5"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s0583232209/react-2-project.git"
+  },
+  "bugs": {
+    "url": "https://github.com/s0583232209/react-2-project/issues"
+  },
+  "homepage": "https://github.com/s0583232209/react-2-project#readme"
 }

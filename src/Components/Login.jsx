@@ -5,7 +5,7 @@ export default function Login(props) {
   const [password, setPassword] = useState("");
   const navigation = useNavigate();
   function login() {
-    fetch(`http://localhost:3000/users/?userName=${userName}`)
+    fetch(`http://localhost:3000/users/?username=${userName}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Request failed");

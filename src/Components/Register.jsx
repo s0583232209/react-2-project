@@ -28,7 +28,7 @@ export default function Register() {
 
     setNewUser({
       username: data.userName,
-      website: data.password,
+      password: data.password,
     });
 
     setStep(2);
@@ -59,13 +59,12 @@ export default function Register() {
         bs: "N/A",
       },
     };
+console.log(newUser);
 
     const response = await fetch("http://localhost:3000/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fullNewUser
-      }),
+      body: JSON.stringify(fullNewUser),
     });
 
     const user = await response.json();

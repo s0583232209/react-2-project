@@ -229,6 +229,30 @@
         "catchPhrase": "Centralized empowering task-force",
         "bs": "target end-to-end models"
       }
+    },
+    {
+      "id": "a088",
+      "fullNewUser": {
+        "name": "Nechama Sanders",
+        "username": "nechama",
+        "email": "nechamasanders2006@gmail.com",
+        "address": {
+          "street": "נהר הירקון",
+          "suite": "Apt. 1",
+          "city": "רמת בית שמש",
+          "zipcode": "00000",
+          "geo": {
+            "lat": "0",
+            "lng": "0"
+          }
+        },
+        "phone": "0548427103",
+        "company": {
+          "name": "N/A",
+          "catchPhrase": "N/A",
+          "bs": "N/A"
+        }
+      }
     }
   ],
   "posts": [

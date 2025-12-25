@@ -16,20 +16,19 @@ export default function Login(props) {
         if (data.length <= 0) {
           return console.log("failed to log in");
         }
-        if (data[0].website === password) navigation("/");
-        else {
+        if (data[0].website != password)
           return console.log("password wrong!!!!", data);
-        }
-        sessionStorage(
+        sessionStorage.setItem(
           "current-user",
           JSON.stringify({
-            id: 2,
-            name: data.name,
-            username: data.userName,
-            email: data.email,
-            address: data.address,
+            id: data[0].id,
+            name: data[0].name,
+            username: data[0].userName,
+            email: data[0].email,
+            address: data[0].address,
           })
         );
+        navigation("/");
       })
       .catch((error) => {
         console.error("Error:", error);

@@ -22,7 +22,7 @@ export default function Login(props) {
         }
         sessionStorage(
           "current-user",
-          JSON.stringify({
+          JSON.stringify({ 
             id: 2,
             name: data.name,
             username: data.userName,

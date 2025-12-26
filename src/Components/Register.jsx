@@ -1,60 +1,108 @@
-import { useState } from "react";
-import { Outlet, Link } from "react-router-dom";
-export default function Register(props) {
-  const [userName, setUserName] = useState("");
-  const [password, setPassword] = useState("");
-  const navigation = useNavigate();
-  function login() {
-    fetch(`http://localhost:3000/users/?userName=${userName}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Request failed");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.length <= 0) {
-          return console.log("failed to log in");
-        }
-        navigation("/");
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+
+export default function Register() {
+  const { register, handleSubmit } = useForm();
+  const [step, setStep] = useState(1);
+  const navigate = useNavigate();
+  const [newUser, setNewUser] = useState(null);
+
+  async function submitStep1(data) {
+    if (data.password !== data.verifyPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    const response = await fetch(
+      `http://localhost:3000/users?username=${data.userName}`
+    );
+    const users = await response.json();
+
+    if (users.length > 0) {
+      console.log(users);
+
+      console.log("Username exists");
+      return;
+    }
+
+    setNewUser({
+      username: data.userName,
+      password: data.password,
+    });
+
+    setStep(2);
+  }
+
+  async function submitStep2(data) {
+    const fullNewUser = {
+      name: data.name,
+      username: newUser.username,
+      email: data.email,
+
+      address: {
+        street: data.street,
+        suite: "Apt. 1",
+        city: data.city,
+        zipcode: "00000",
+        geo: {
+          lat: "0",
+          lng: "0",
+        },
+      },
+
+      phone: data.phoneNumber,
+      website: newUser.password, 
+      company: {
+        name: "N/A",
+        catchPhrase: "N/A",
+        bs: "N/A",
+      },
+    };
+console.log(newUser);
+
+    const response = await fetch("http://localhost:3000/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(fullNewUser),
+    });
+
+    const user = await response.json();
+
+    sessionStorage.setItem("current-user", JSON.stringify(user));
+    navigate("/");
   }
 
   return (
     <>
-      <form>
-        <label htmlFor="userName">User Name</label>
-        <input
-          type="text"
-          name="userName"
-          id="userName"
-          onChange={(e) => {
-            setUserName(e.target.value);
-          }}
-        ></input>
-        <label htmlFor="password">Password</label>
-        <input
-          type="password"
-          name="password"
-          id="password"
-          onChange={(e) => {
-            setPassword(e.target.value);
-          }}
-        ></input>
-        <button
-          id="submitLogin"
-          onClick={(e) => {
-            e.preventDefault();
-            login();
-          }}
-        >
-          Log In
-        </button>
-      </form>
-      <Outlet></Outlet>
+      {step === 1 && (
+        <form onSubmit={handleSubmit(submitStep1)}>
+          <label htmlFor="userName">User Name</label>
+          <input type="text" name="userName" id="userName"{...register("userName")} />
+          <label htmlFor="password">Password</label>
+          <input type="password" name="password" id="password"{...register("password")} />
+          <label htmlFor="verifyPassword">Verify Password</label>
+          <input type="password" name="verifyPassword" id="verifyPassword"{...register("verifyPassword")} />
+          <button>Next</button>
+        </form>
+      )}
+
+      {step === 2 && (
+        <form onSubmit={handleSubmit(submitStep2)}>
+          <label htmlFor="name">Name</label>
+          <input type="text" name="name" id="name"{...register("name")} />
+          <label htmlFor="email">Email</label>
+          <input type="email" name="email" id="email"{...register("email")} />
+          <label htmlFor="street">Street</label>
+          <input type="text" name="street" id="street"{...register("street")} />
+          <label htmlFor="city">City</label>
+          <input type="text" name="city" id="city"{...register("city")} />
+          <label htmlFor="phoneNumber">Phone Number</label>
+          <input type="text" name="phoneNumber" id="phoneNumber"{...register("phoneNumber")} />
+          <button>Register</button>
+        </form>
+      )}
     </>
   );
 }
+

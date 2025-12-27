@@ -14,6 +14,12 @@ import Task from "./Components/Task.jsx";
 import Tasks from "./Components/Tasks.jsx";
 import NavBar from "./Components/NavBar.jsx"
 import { BrowserRouter as Router, Routes, Route, Link,Outlet,NavLink } from "react-router-dom";
+let str=''
+for(let i=1;i<112;i++){
+  str+=`{"id":"${1}", "path":"../src/assets/pictures/landscape${i}.jpg"},\n`
+}
+console.log(str);
+
 createRoot(document.getElementById("root")).render(
   <Router>
     <NavBar />

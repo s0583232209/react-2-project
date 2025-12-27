@@ -31,6 +31,9 @@ export default function Tasks(props) {
     }
   }
   async function addTask(data) {
+    if(data.title.trim()==="") {
+      setNewTask(false);
+      return;}
     const response = await fetch(`http://localhost:3000/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

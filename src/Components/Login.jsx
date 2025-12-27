@@ -1,69 +1,31 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-export default function Login(props) {
-  const [userName, setUserName] = useState("");
-  const [password, setPassword] = useState("");
+import { useForm } from "react-hook-form";
+export default function Login() {
+  const { register, handleSubmit } = useForm();
   const navigation = useNavigate();
-  function login() {
-    fetch(`http://localhost:3000/users/?username=${userName}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Request failed");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.length <= 0) {
-          return console.log("failed to log in");
-        }
-        if (data[0].website != password)
-          return console.log("password wrong!!!!", data);
-        sessionStorage.setItem(
-          "current-user",
-          JSON.stringify({
-            id: data[0].id,
-            name: data[0].name,
-            username: data[0].userName,
-            email: data[0].email,
-            address: data[0].address,
-          })
-        );
-        navigation("/");
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+  async function login(data) {
+    const response = await fetch(`http://localhost:3000/users/?username=${data.userName}`);
+    const user = await response.json();
+    if (user.length <= 0)
+      return console.log("User does not exist",user)
+    if (user[0].website != data.password)
+      return console.log("Wrong password", user);
+
+    sessionStorage.setItem(
+      "current-user",
+      JSON.stringify(user[0]),
+    );
+    navigation("/");
   }
 
-  return (
-    <form>
-      <label htmlFor="userName">User Name</label>
-      <input
-        type="text"
-        name="userName"
-        id="userName"
-        onChange={(e) => {
-          setUserName(e.target.value);
-        }}
-      ></input>
-      <label htmlFor="password">Password</label>
-      <input
-        type="password"
-        name="password"
-        id="password"
-        onChange={(e) => {
-          setPassword(e.target.value);
-        }}
-      ></input>
-      <button
-        id="submitLogin"
-        onClick={(e) => {
-          e.preventDefault();
-          login();
-        }}
-      >
-        Log In
-      </button>
-    </form>
-  );
+
+return (
+  <form onSubmit={handleSubmit(login)}>
+    <label htmlFor="userName">User Name</label>
+    <input type="text" name="userName" id="userName"{...register("userName")} />
+    <label htmlFor="password">Password</label>
+    <input type="password" name="password" id="password"{...register("password")} />
+    <button>Log In</button>
+  </form>
+);
 }

@@ -10,7 +10,7 @@ export default function Register() {
 
   async function submitStep1(data) {
     if (data.password !== data.verifyPassword) {
-      alert("Passwords do not match");
+      console.log("Passwords do not match");
       return;
     }
 
@@ -52,14 +52,14 @@ export default function Register() {
       },
 
       phone: data.phoneNumber,
-      website: newUser.password, 
+      website: newUser.password,
       company: {
         name: "N/A",
         catchPhrase: "N/A",
         bs: "N/A",
       },
     };
-console.log(newUser);
+    console.log(newUser);
 
     const response = await fetch("http://localhost:3000/users", {
       method: "POST",

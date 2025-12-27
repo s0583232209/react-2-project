@@ -17,11 +17,11 @@ export default function Register() {
     const response = await fetch(
       `http://localhost:3000/users?username=${data.userName}`
     );
+    console.log(response)
     const users = await response.json();
 
     if (users.length > 0) {
       console.log(users);
-
       console.log("Username exists");
       return;
     }

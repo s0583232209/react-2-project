@@ -12,11 +12,18 @@ import Register from "../src/Components/Register.jsx";
 import RegisterDetails from "../src/Components/RegisterDetails.jsx";
 import Task from "./Components/Task.jsx";
 import Tasks from "./Components/Tasks.jsx";
-import NavBar from "./Components/NavBar.jsx"
-import { BrowserRouter as Router, Routes, Route, Link,Outlet,NavLink } from "react-router-dom";
-let str=''
-for(let i=1;i<112;i++){
-  str+=`{"id":"${1}", "path":"../src/assets/pictures/landscape${i}.jpg"},\n`
+import NavBar from "./Components/NavBar.jsx";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Outlet,
+  NavLink,
+} from "react-router-dom";
+let str = "";
+for (let i = 1; i < 112; i++) {
+  str += `{"id":"${i}", "path":"../src/assets/pictures/landscape${i}.jpg"},\n`;
 }
 console.log(str);
 
@@ -35,9 +42,9 @@ createRoot(document.getElementById("root")).render(
       <Route path="/posts" element={<Posts />}>
         <Route path=":id" element={<Post />}></Route>
       </Route>
-      <Route path="/tasks" element={<Tasks />} ></Route>
-      <Route path="/tasks"  element={<Outlet></Outlet>} >
-        <Route path=":id" element={<Task />}/>
+      <Route path="/tasks" element={<Tasks />}></Route>
+      <Route path="/tasks" element={<Outlet></Outlet>}>
+        <Route path=":id" element={<Task />} />
       </Route>
       <Route path="*" element={<ErrorPage />}></Route>
     </Routes>

@@ -1,12 +1,33 @@
-import {useState}from 'react'
+import { useState } from 'react'
 export default function Task(props) {
-  const[checked,setChecked]=useState(props.completed)
+  const [editing, setEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState(props.title);
+  function startEdit() {
+    setNewTitle(props.title);
+    setEditing(true);
+  }
+  function cancelEdit() {
+    setEditing(false);
+  }
+  function saveEdit() {
+    if (newTitle.trim() === "") return;
+    props.edit(props.id, {title:newTitle, completed:props.completed});
+    setEditing(false);
+  }
   return (
     <>
-    <h3>{props.id}</h3>
-      <h3>{props.title}</h3>
-      <input type="checkbox" onChange={(e)=>{setChecked(e.target.checked)}} checked={checked}></input>
-    <button className="delete" onClick={()=>props.delete(props.id)}>Delete</button>
+      {editing ? (<>
+        <input type="text" value={newTitle} onChange={e=>setNewTitle(e.target.value)} autoFocus/>
+        <button onClick={saveEdit}>Save</button>
+        <button onClick={cancelEdit}>Cancel</button>
+      </>) : (<>
+        <h3>{props.id}</h3>
+        <h2>{props.title}</h2>
+        <input type="checkbox" onChange={() => props.edit(props.id, { title:props.title, completed:!props.completed}) } checked={props.completed}></input>
+        <button className="delete" onClick={() => props.onDelete(props.id)}>Delete</button>
+        <button className="edit" onClick={startEdit}>Edit</button>
+      </>)}
+
     </>
   );
 }

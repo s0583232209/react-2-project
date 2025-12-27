@@ -10,12 +10,15 @@ export default function Login(props) {
         if (!response.ok) {
           throw new Error("Request failed");
         }
+
         return response.json();
       })
       .then((data) => {
         if (data.length <= 0) {
           return console.log("failed to log in");
         }
+        console.log(data[0].website, password);
+
         if (data[0].website != password)
           return console.log("password wrong!!!!", data);
         sessionStorage.setItem(

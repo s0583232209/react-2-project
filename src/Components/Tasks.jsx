@@ -1,39 +1,37 @@
 import { Outlet, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Task from './Task'
+import Task from "./Task";
 export default function Tasks(props) {
   const [tasksList, setTasksList] = useState([]);
 
   useEffect(() => {
     async function getTasks() {
-      const id = Number(JSON.parse(sessionStorage.getItem("current-user")).id);
+      const id = JSON.parse(sessionStorage.getItem("current-user")).id;
       const response = await fetch(`http://localhost:3000/tasks/?userId=${id}`);
       if (!response.ok)
         throw new Error(
-          "Error: response is not ok, status:  " + response.statuse
+          "Error: response is not ok, status:  " + response.status
         );
       const data = await response.json();
       setTasksList(data);
-      console.log(tasksList);
     }
     getTasks();
-    return () => {
-      setTasksList(null);
-    };
   }, []);
 
   return (
     <>
       <h1>Tasks</h1>
       {tasksList.length > 0 ? (
-        tasksList.map((tasks) => (
+        tasksList.map((task) => (
           <Task
-            key={tasks.id}
-            title={tasks.title}
-            completed={tasks.completed}
+            key={task.id}
+            title={task.title}
+            completed={task.completed}
           ></Task>
         ))
-      ) : (null)}
+      ) : (
+        <p>No Tasks</p>
+      )}
       <Outlet></Outlet>
     </>
   );

@@ -1,11 +1,149 @@
-import { Outlet, Link } from "react-router-dom";
-
-export default function Posts(props){
+import { Outlet, Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import Post from "./Post";
+export default function Posts(props) {
+    const id = JSON.parse(sessionStorage.getItem("current-user")).id || "null";
+    const name = JSON.parse(sessionStorage.getItem("current-user")).username || "null";
+    const [postsList, setPostsList] = useState([]);
+    const [newPost, setNewPost] = useState(false);
+    const { register, handleSubmit, reset } = useForm();
+    const [title, setTitle] = useState("");
+    const [postID, setPostID] = useState("");
+    const navigate = useNavigate();
+    const [check, setCheck] = useState(() => (post) => {
+        return true;
+    });
+    useEffect(() => {
+        async function getPosts() {
+            const response = await fetch(`http://localhost:3000/posts/`);
+            if (!response.ok)
+                throw new Error(
+                    "Error: response is not ok, status:  " + response.status
+                );
+            const data = await response.json();
+            setPostsList(data);
+        }
+        getPosts();
+    }, []);
+    async function deletePost(id) {
+        const response = await fetch(`http://localhost:3000/posts/${id}`, {
+            method: "DELETE",
+        });
+        if (response.ok) {
+            setPostsList((prev) => prev.filter((post) => post.id !== id));
+        }
+    }
+    async function addNewPost(data) {
+        if (data.title.trim() === "") {
+            setNewPost(false);
+            return;
+        }
+        const response = await fetch(`http://localhost:3000/posts`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userId: id,
+                title: data.title,
+                body: data.body,
+            }),
+        });
+        if (response.ok) {
+            setNewPost(false);
+            const newPostResponse = await response.json();
+            setPostsList((prev) => [...prev, newPostResponse]);
+            reset();
+        }
+    }
+    async function updatePost(postId, updates) {
+        const postToEdit = postsList.find((p) => p.id === postId);
+        const editedPost = { ...postToEdit, ...updates };
+        const response = await fetch(`http://localhost:3000/posts/${postId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(editedPost),
+        });
+        if (response.ok) {
+            const updatedPost = await response.json();
+            setPostsList((prev) =>
+                prev.map((post) => (post.id === postId ? updatedPost : post))
+            );
+        }
+    }
     return (
         <>
-        <h1>Posts</h1>
-
-        <Outlet></Outlet>
+            <h1>Posts</h1>
+            <button
+                id="byTitle"
+                onClick={() =>
+                    setCheck(() => (post) => {
+                        return post.title == title;
+                    })
+                }
+            >
+                by title
+            </button>
+            <input type="text" onChange={(e) => setTitle(e.target.value)}></input>
+            <button
+                id="byId"
+                onClick={() =>
+                    setCheck(() => (post) => {
+                        return post.id == postID;
+                    })
+                }
+            >
+                by ID
+            </button>
+            <input type="text" onChange={(e) => setPostID(e.target.value)}></input>
+            <button className="addNewPost" onClick={() => setNewPost(!newPost)}>
+                Add New Post
+            </button>
+            {newPost ? (
+                <>
+                    <form onSubmit={handleSubmit(addNewPost)}>
+                        <label htmlFor="title">Title</label>
+                        <input
+                            type="text"
+                            id="title"
+                            name="title"
+                            {...register("title")}
+                        ></input>
+                        <label htmlFor="body">Body</label>
+                        <input
+                            type="text"
+                            id="body"
+                            name="body"
+                            {...register("body")}
+                        ></input>
+                        <button>Add</button>
+                    </form>
+                </>
+            ) : null}
+            {postsList.length > 0 ? (
+                postsList.map((post) =>
+                    check(post) ? (
+                        <Post
+                            onDelete={deletePost}
+                            edit={updatePost}
+                            id={post.id}
+                            key={post.id}
+                            title={post.title}
+                            body={post.body}
+                            userName={name}
+                            currentUser={post.userId==id}
+                        ></Post>
+                    ) : null
+                )
+            ) : (
+                <p>No Posts</p>
+            )}
+            <Outlet></Outlet>
         </>
     )
 }
+
+
+
+
+
+

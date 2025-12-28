@@ -25,7 +25,7 @@ let str = "";
 for (let i = 1; i < 112; i++) {
   str += `{"id":"${i}", "path":"../src/assets/pictures/landscape${i}.jpg"},\n`;
 }
-console.log(str);
+//console.log(str);
 
 createRoot(document.getElementById("root")).render(
   <Router>

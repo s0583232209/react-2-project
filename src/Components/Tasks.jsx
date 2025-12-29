@@ -3,13 +3,14 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Task from "./Task";
 export default function Tasks(props) {
+    const navigate = useNavigate();
+  if (!sessionStorage.getItem("current-user")) navigate("/login",{state:"this should be the url"});
   const id = JSON.parse(sessionStorage.getItem("current-user")).id || "null";
   const [tasksList, setTasksList] = useState([]);
   const [newTask, setNewTask] = useState(false);
   const { register, handleSubmit, reset } = useForm();
   const [title, setTitle] = useState("");
   const [taskID, setTaskID] = useState("");
-  const navigate = useNavigate();
   const [check, setCheck] = useState(() => () => {
     return true;
   });

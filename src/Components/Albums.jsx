@@ -5,6 +5,7 @@ import AlbumLink from './AlbumLink'
 export default function Albums(props) {
   const [userId, setUserId] = useState();
   const [useresAlbums, setUsersAlbums] = useState([]);
+  const [albumView,setAlbumView] =useState(false)
   // const naviaget = useNavigate();
 
   useEffect(() => {
@@ -31,13 +32,12 @@ export default function Albums(props) {
 
   return (
     <>
-      <h1>Albums</h1>
-      {useresAlbums.length > 0 ? (
+      {!albumView && useresAlbums.length > 0 ? (
         useresAlbums.map((album) => (
-          <AlbumLink  userId={userId}key={album.id} id={album.id}></AlbumLink>
+          <AlbumLink changeStateAlbumView={setAlbumView} userId={userId}key={album.id} id={album.id}></AlbumLink>
         ))
-      ) : (
-        <p>no albums</p>
+      ) : ( !albumView ? (
+        <p>no albums</p>):null
       )}
       <Outlet />
     </>

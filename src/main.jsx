@@ -23,9 +23,9 @@ import {
 } from "react-router-dom";
 let str = "";
 for (let i = 1; i < 112; i++) {
-  str += `{"id":"${i}", "path":"../src/assets/pictures/landscape${i}.jpg"},\n`;
+  str += `{"albumId":${1+i%9},"id":"${i}", "path":"/pictures/landscape${i}.jpg"},\n`;
 }
-//console.log(str);
+console.log(str);
 
 createRoot(document.getElementById("root")).render(
   <Router>
@@ -36,13 +36,14 @@ createRoot(document.getElementById("root")).render(
         <Route path="details" element={<RegisterDetails />}></Route>
       </Route>
       <Route path="/" element={<Home />}></Route>
-      <Route path="/albums/:id" element={<Albums />}>
-        <Route path=":id" element={<Album />}></Route>
+      <Route path="/albums/:id/" element={<Albums />}>
+       
       </Route>
-      <Route path="/posts/:id" element={<Posts />}>
+       <Route path="/albums/:id/:id" element={<Album />}></Route>
+       <Route path="/posts/:id/" element={<Posts />}>
         <Route path=":id" element={<Post />}></Route>
       </Route>
-      <Route path="/tasks/:id" element={<Tasks />}>
+      <Route path="/tasks/:id/" element={<Tasks />}>
       
       {/* <Route path="/tasks" element={<Outlet></Outlet>}> */}
         <Route path=":id" element={<Task />} />

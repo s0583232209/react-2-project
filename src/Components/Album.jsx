@@ -1,24 +1,41 @@
+import { useHref } from "react-router-dom";
 import Photo from "./Photo";
 import { useState, useEffect } from "react";
 export default function Album(props) {
+  console.log('in Album');
+  
   const [photos, setPhotos] = useState([]);
+  const [id, setId] = useState(null);
+  const  href = useHref();
+  useEffect(() => {
+    
+    console.log(href);
+    let hrefIn = href.split("/");
+    setId(hrefIn[hrefIn.length - 1])
+    console.log(hrefIn[hrefIn.length - 1]);
+  }, [href]);
+
   useEffect(() => {
     async function getPhotos() {
-      console.log(props.id, 'in useEffect of album');
+      console.log(id,'id');
+      
       const response = await fetch(
-        `http://localhost:3000/photos/?albumId=${props.id}`
+        `http://localhost:3000/photos/?albumId=${id}`
       );
       const data = await response.json();
-      console.log(data, props.id);
       setPhotos(data);
+      console.log(data,"data");
+      
     }
     getPhotos();
-  }, []);
+  }, [id]);
   return (
     <>
-      <h1>Album {props.id}</h1>
+      <h1>Album {id}</h1>
+      {/* <img src="/pictures/landscape2.jpg"></img> */}
+      <br></br>
       {photos.length > 0 ? (
-        photos.map((photo) => <Photo key={photo.id} path={photo.path_url} />)
+        photos.map((photo) => <Photo key={photo.id} path={photo.path} />)
       ) : (
         <p>no photos</p>
       )}

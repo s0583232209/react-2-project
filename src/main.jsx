@@ -23,7 +23,7 @@ import {
 } from "react-router-dom";
 let str = "";
 for (let i = 1; i < 112; i++) {
-  str += `{"albumId":${1+i%9},"id":"${i}", "path":"/pictures/landscape${i}.jpg"},\n`;
+  str += `{"albumId":${1+i%9},"id":"${i}", "path":"/pictures/landscape${i}.jpg","title":"photos id number ${i}"},\n`;
 }
 console.log(str);
 

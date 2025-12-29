@@ -29,21 +29,22 @@ for (let i = 1; i < 112; i++) {
 
 createRoot(document.getElementById("root")).render(
   <Router>
-    <NavBar />
+    
     <Routes>
       <Route path="/login" element={<Login />}></Route>
       <Route path="/register" element={<Register />}>
         <Route path="details" element={<RegisterDetails />}></Route>
       </Route>
       <Route path="/" element={<Home />}></Route>
-      <Route path="/albums" element={<Albums />}>
+      <Route path="/albums/:id" element={<Albums />}>
         <Route path=":id" element={<Album />}></Route>
       </Route>
-      <Route path="/posts" element={<Posts />}>
+      <Route path="/posts/:id" element={<Posts />}>
         <Route path=":id" element={<Post />}></Route>
       </Route>
-      <Route path="/tasks" element={<Tasks />}></Route>
-      <Route path="/tasks" element={<Outlet></Outlet>}>
+      <Route path="/tasks/:id" element={<Tasks />}>
+      
+      {/* <Route path="/tasks" element={<Outlet></Outlet>}> */}
         <Route path=":id" element={<Task />} />
       </Route>
       <Route path="*" element={<ErrorPage />}></Route>

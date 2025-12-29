@@ -67,7 +67,7 @@ export default function Comments(props) {
     }
     return (
         <>
-            <h1>Comments</h1>
+
             <button className="addNewComment" onClick={() => setNewComment(!newComment)}>
                 Add New Comment
             </button>
@@ -92,22 +92,27 @@ export default function Comments(props) {
                     </form>
                 </>
             ) : null}
-            {commentsList.length > 0 ? (
-                commentsList.map((comment) =>
-                    <Comment
-                        onDelete={deleteComment}
-                        edit={updateComment}
-                        id={comment.id}
-                        key={comment.id}
-                        name={comment.name}
-                        body={comment.body}
-                        email={comment.email}
-                        currentUser={comment.email == userEmail}
-                    ></Comment>
-                )
-            ) : (
-                <p>No Comments</p>
-            )}
+            {props.showComments ? (<>
+                <h1>Comments</h1>
+                {commentsList.length > 0 ? (
+                    commentsList.map((comment) =>
+                        <Comment
+                            onDelete={deleteComment}
+                            edit={updateComment}
+                            id={comment.id}
+                            key={comment.id}
+                            name={comment.name}
+                            body={comment.body}
+                            email={comment.email}
+                            currentUser={comment.email == userEmail}
+                        ></Comment>
+                    )
+                ) : (
+                    <p>No Comments</p>
+                )}
+                <button className="closeComments" onClick={() => props.setShowComments(false)}>Close Comments</button>
+            </>) : null}
+
             <Outlet></Outlet>
         </>
     )

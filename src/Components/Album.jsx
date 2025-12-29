@@ -2,10 +2,9 @@ import Photo from "./Photo";
 import { useState, useEffect } from "react";
 export default function Album(props) {
   const [photos, setPhotos] = useState([]);
-  const [show, setShow] = useState(false);
   useEffect(() => {
     async function getPhotos() {
-      console.log(props.id);
+      console.log(props.id, 'in useEffect of album');
       const response = await fetch(
         `http://localhost:3000/photos/?albumId=${props.id}`
       );
@@ -18,14 +17,7 @@ export default function Album(props) {
   return (
     <>
       <h1>Album {props.id}</h1>
-      <button
-        onClick={() => {
-          setShow(!show);
-        }}
-      >
-        Show Album #1
-      </button>
-      {photos.length > 0 && show ? (
+      {photos.length > 0 ? (
         photos.map((photo) => <Photo key={photo.id} path={photo.path_url} />)
       ) : (
         <p>no photos</p>

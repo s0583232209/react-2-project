@@ -9,6 +9,10 @@ export default function Comments(props) {
     const navigate = useNavigate();
     const userEmail = JSON.parse(sessionStorage.getItem("current-user")).email || "null";
     useEffect(() => {
+        setCommentsList([]);
+    }, [props.postId]);
+
+    useEffect(() => {
         async function getComments() {
             const response = await fetch(`http://localhost:3000/comments/?postId=${props.postId}`);
             if (!response.ok)

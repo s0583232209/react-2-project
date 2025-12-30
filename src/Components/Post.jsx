@@ -43,10 +43,9 @@ export default function Post(props) {
                 </>) : null}
             </>)}
             {
-                showComments ? (<>
-                    <Comments postId={props.id}></Comments>
-                    <button className="closeComments" onClick={() => setShowComments(false)}>Close Comments</button>
-                </>) : null
+                (<>
+                    <Comments postId={props.id} showComments={showComments} setShowComments={setShowComments}></Comments>
+                </>)
             }
         </>
     )

@@ -1,16 +1,44 @@
-import { Outlet, Link, useNavigate } from "react-router-dom";
+import {
+  Outlet,
+  Link,
+  useNavigate,
+  useParams,
+  useLocation,
+} from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Task from "./Task";
 export default function Tasks(props) {
-    const navigate = useNavigate();
-  if (!sessionStorage.getItem("current-user")) navigate("/login",{state:"this should be the url"});
-  const id = JSON.parse(sessionStorage.getItem("current-user")).id || "null";
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!id) navigate("/login", { state: "this should be the url" });
+  }, []);
+
+  const id = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
   const [tasksList, setTasksList] = useState([]);
   const [newTask, setNewTask] = useState(false);
   const { register, handleSubmit, reset } = useForm();
   const [title, setTitle] = useState("");
   const [taskID, setTaskID] = useState("");
+  const location = useLocation();
+  console.log(location);
+  useEffect(() => {
+
+    if (!location.search == "") applySearch(location.search);
+  }, [location]);
+  function applySearch(search) {
+    search = search.split("&");
+    for (let i = 0; i < search.length; i++) {
+      switch (search[i].split("=")[0]) {
+        case "sortBy":
+          sortList(search[i].split("=")[1]);
+          break;
+
+        default:
+          break;
+      }
+    }
+  }
   const [check, setCheck] = useState(() => () => {
     return true;
   });
@@ -72,20 +100,21 @@ export default function Tasks(props) {
     }
   }
   function sortList(sortBy) {
+    if (sortBy == "sort") return;
     if (sortBy == "true" || sortBy == "false") {
       sortByCompleted(sortBy);
       return;
     }
     tasksList.sort((a, b) => a[sortBy].localeCompare(b[sortBy]));
-
     setTasksList([...tasksList]);
-    console.log(tasksList);
+    navigate(`?sortBy=${sortBy}`);
   }
   function sortByCompleted(startWith) {
     if (startWith == "false")
       tasksList.sort((a, b) => a.completed - b.completed);
     else tasksList.sort((a, b) => b.completed - a.completed);
     setTasksList([...tasksList]);
+    navigate(`?startWith=${startWith}`);
   }
   function back() {
     setCheck(() => () => {
@@ -97,6 +126,7 @@ export default function Tasks(props) {
     <>
       <h1>Tasks</h1>
       <select onChange={(e) => sortList(e.target.value)}>
+        <option value="sort">Sort By</option>
         <option value="title">Title</option>
         <option value="id">ID</option>
         <option value="true">Completed First</option>
@@ -104,11 +134,12 @@ export default function Tasks(props) {
       </select>
       <button
         id="byTitle"
-        onClick={() =>
+        onClick={() => {
           setCheck(() => (task) => {
             return task.title == title;
-          })
-        }
+          });
+          navigate(`?title=${title}`);
+        }}
       >
         by title
       </button>
@@ -118,7 +149,7 @@ export default function Tasks(props) {
           setCheck(() => (task) => {
             return task.completed;
           });
-          navigate(`/tasks/${id}/?completed=true`);
+          navigate(`?completed=true`);
         }}
       >
         only completed
@@ -128,18 +159,19 @@ export default function Tasks(props) {
           setCheck(() => (task) => {
             return !task.completed;
           });
-          navigate(`/tasks/${id}/?completed=false`);
+          navigate(`?completed=false`);
         }}
       >
         Uncompleted only
       </button>
       <button
-        id="byTitle"
-        onClick={() =>
+        id="byID"
+        onClick={() => {
           setCheck(() => (task) => {
             return task.id == taskID;
-          })
-        }
+          });
+          navigate(`?id=${taskID}`);
+        }}
       >
         by ID
       </button>

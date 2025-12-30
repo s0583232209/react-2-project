@@ -12,7 +12,6 @@ import Register from "../src/Components/Register.jsx";
 import RegisterDetails from "../src/Components/RegisterDetails.jsx";
 import Task from "./Components/Task.jsx";
 import Tasks from "./Components/Tasks.jsx";
-import NavBar from "./Components/NavBar.jsx";
 import {
   BrowserRouter as Router,
   Routes,

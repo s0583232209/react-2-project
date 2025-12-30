@@ -91,7 +91,7 @@ export default function Tasks(props) {
     setCheck(() => () => {
       return true;
     });
-    navigate("/tasks");
+    navigate(`/tasks/${id}`);
   }
   return (
     <>
@@ -118,7 +118,7 @@ export default function Tasks(props) {
           setCheck(() => (task) => {
             return task.completed;
           });
-          navigate("/tasks/?completed=true");
+          navigate(`/tasks/${id}/?completed=true`);
         }}
       >
         only completed
@@ -128,7 +128,7 @@ export default function Tasks(props) {
           setCheck(() => (task) => {
             return !task.completed;
           });
-          navigate("/tasks/?completed=false");
+          navigate(`/tasks/${id}/?completed=false`);
         }}
       >
         Uncompleted only

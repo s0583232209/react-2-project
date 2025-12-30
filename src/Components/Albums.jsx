@@ -6,17 +6,10 @@ export default function Albums(props) {
   const navigate = useNavigate();
   if (!sessionStorage.getItem("current-user"))
     navigate("/login", { state: "this should be the url" });
-  const [userId, setUserId] = useState();
+  const [userId, setUserId] = useState(JSON.parse(sessionStorage.getItem('current-user')).id);
   const [useresAlbums, setUsersAlbums] = useState([]);
   const [albumView, setAlbumView] = useState(false);
 
-  useEffect(() => {
-    const id = JSON.parse(sessionStorage.getItem("current-user")).id || null;
-    if (!id) naviaget("/login");
-    else {
-      setUserId(id);
-    }
-  }, []);
   useEffect(() => {
     async function getAlbums() {
       console.log(userId);
@@ -36,6 +29,7 @@ export default function Albums(props) {
       {!albumView && useresAlbums.length > 0 ? (
         useresAlbums.map((album) => (
           <AlbumLink
+          title={album.title}
             changeStateAlbumView={setAlbumView}
             userId={userId}
             key={album.id}

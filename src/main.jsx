@@ -1,6 +1,5 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import App from "./App.jsx";
 import ErrorPage from "../src/Components/ErrorPage.jsx";
 import Album from "../src/Components/Album.jsx";
 import Albums from "../src/Components/Albums.jsx";
@@ -9,10 +8,8 @@ import Login from "../src/Components/Login.jsx";
 import Post from "../src/Components/Post.jsx";
 import Posts from "../src/Components/Posts.jsx";
 import Register from "../src/Components/Register.jsx";
-import RegisterDetails from "../src/Components/RegisterDetails.jsx";
 import Task from "./Components/Task.jsx";
 import Tasks from "./Components/Tasks.jsx";
-import NavBar from "./Components/NavBar.jsx";
 import {
   BrowserRouter as Router,
   Routes,
@@ -23,7 +20,7 @@ import {
 } from "react-router-dom";
 let str = "";
 for (let i = 1; i < 112; i++) {
-  str += `{"albumId":${1+i%9},"id":"${i}", "path":"/pictures/landscape${i}.jpg","title":"photos id number ${i}"},\n`;
+  str += `{"albumId":${1+i%9+900},"id":"${i}", "path":"/pictures/landscape${i}.jpg","title":"photos number ${i}"},\n`;
 }
 console.log(str);
 
@@ -33,7 +30,6 @@ createRoot(document.getElementById("root")).render(
     <Routes>
       <Route path="/login" element={<Login />}></Route>
       <Route path="/register" element={<Register />}>
-        <Route path="details" element={<RegisterDetails />}></Route>
       </Route>
       <Route path="/" element={<Home />}></Route>
       <Route path="/albums/:id/" element={<Albums />}>

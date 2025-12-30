@@ -24,7 +24,7 @@ export default function AlbumLink(props) {
           setShow(true);
         }}
       >
-        Press to open album {props.id}
+        Press to open album {props.id} title: {props.title}
       </button>
     </>
   );

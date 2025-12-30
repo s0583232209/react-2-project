@@ -1,31 +1,110 @@
-import { Outlet, Link, useNavigate } from "react-router-dom";
+import {
+  Outlet,
+  Link,
+  useNavigate,
+  useParams,
+  useLocation,
+} from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Task from "./Task";
+import Login from "./Login";
+import { use } from "react";
 export default function Tasks(props) {
-    const navigate = useNavigate();
-  if (!sessionStorage.getItem("current-user")) navigate("/login",{state:"this should be the url"});
-  const id = JSON.parse(sessionStorage.getItem("current-user")).id || "null";
-  const [tasksList, setTasksList] = useState([]);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!id) navigate("/login", { state: "this should be the url" });
+  }, []);
+  const id = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
+  const [tasksList, setTasksList] = useState(
+    JSON.parse(localStorage.getItem("tasksListTasks")) || []
+  );
   const [newTask, setNewTask] = useState(false);
   const { register, handleSubmit, reset } = useForm();
-  const [title, setTitle] = useState("");
-  const [taskID, setTaskID] = useState("");
+  const [title, setTitle] = useState(
+    JSON.parse(localStorage.getItem("titleTasks")) || ""
+  );
+  const [taskID, setTaskID] = useState(
+    JSON.parse(localStorage.getItem("taskIDTasks")) || ""
+  );
   const [check, setCheck] = useState(() => () => {
     return true;
   });
+  const [condition, setCondition] = useState(() => {
+    let condition = localStorage.getItem("conditionTasks");
+    if (condition != "undefined") return (condition = JSON.parse(condition));
+    return null;
+  });
   useEffect(() => {
-    async function getTasks() {
-      if (!id) return;
-      const response = await fetch(`http://localhost:3000/tasks/?userId=${id}`);
-      if (!response.ok)
-        throw new Error(
-          "Error: response is not ok, status:  " + response.status
-        );
-      const data = await response.json();
-      setTasksList(data);
+    console.log(condition == null);
+
+    if (condition == null) localStorage.removeItem("conditionTasks");
+  }, [condition]);
+  useEffect(() => {
+    if (tasksList.length == 0) return;
+    switch (condition) {
+      case "byId":
+        setCheck(() => (task) => {
+          return task.id == taskID;
+        });
+        break;
+      case "completedOnly":
+        setCheck(() => (task) => {
+          return task.completed;
+        });
+        break;
+      case "uncompletedOnly":
+        setCheck(() => (task) => {
+          return !task.completed;
+        });
+        break;
+      case "byTitle":
+        setCheck(() => (task) => {
+          return task.title == title;
+        });
+        break;
+      default:
+        setCheck(() => () => {
+          return true;
+        });
+        break;
     }
-    getTasks();
+    return;
+  }, [condition, title, taskID]);
+  useEffect(() => {
+    localStorage.setItem("tasksListTasks", JSON.stringify(tasksList));
+  }, [tasksList]);
+
+  useEffect(() => {
+    localStorage.setItem("titleTasks", JSON.stringify(title));
+  }, [title]);
+  useEffect(() => {
+    localStorage.setItem("taskIDTasks", JSON.stringify(taskID));
+  }, [taskID]);
+  useEffect(() => {
+    if (condition)
+      localStorage.setItem("conditionTasks", JSON.stringify(condition));
+    else
+      localStorage.removeItem('conditionTasks')
+  }, [condition]);
+  useEffect(() => {
+    if (tasksList.length == 0) {
+      async function getTasks() {
+        console.log("in function");
+
+        if (!id) return;
+        const response = await fetch(
+          `http://localhost:3000/tasks/?userId=${id}`
+        );
+        if (!response.ok)
+          throw new Error(
+            "Error: response is not ok, status:  " + response.status
+          );
+        const data = await response.json();
+        setTasksList(data);
+      }
+      if (tasksList.length == 0) getTasks();
+    }
   }, [id]);
   async function deleteTask(id) {
     const response = await fetch(`http://localhost:3000/tasks/${id}`, {
@@ -72,31 +151,37 @@ export default function Tasks(props) {
     }
   }
   function sortList(sortBy) {
+    if (sortBy == "sort") return;
     if (sortBy == "true" || sortBy == "false") {
       sortByCompleted(sortBy);
       return;
     }
     tasksList.sort((a, b) => a[sortBy].localeCompare(b[sortBy]));
-
     setTasksList([...tasksList]);
-    console.log(tasksList);
+    navigate(`?sortBy=${sortBy}`);
   }
   function sortByCompleted(startWith) {
     if (startWith == "false")
       tasksList.sort((a, b) => a.completed - b.completed);
     else tasksList.sort((a, b) => b.completed - a.completed);
     setTasksList([...tasksList]);
+    navigate(`?startWith=${startWith}`);
   }
   function back() {
     setCheck(() => () => {
       return true;
     });
+    removeAllConditions();
     navigate(`/tasks/${id}`);
+  }
+  function removeAllConditions() {
+    setCondition(null);
   }
   return (
     <>
       <h1>Tasks</h1>
       <select onChange={(e) => sortList(e.target.value)}>
+        <option value="sort">Sort By</option>
         <option value="title">Title</option>
         <option value="id">ID</option>
         <option value="true">Completed First</option>
@@ -104,42 +189,52 @@ export default function Tasks(props) {
       </select>
       <button
         id="byTitle"
-        onClick={() =>
+        onClick={() => {
+          setCondition("byTitle");
           setCheck(() => (task) => {
             return task.title == title;
-          })
-        }
+          });
+          navigate(`?title=${title}`);
+        }}
       >
         by title
       </button>
-      <input type="text" onChange={(e) => setTitle(e.target.value)}></input>
+      <input
+        type="text"
+        onChange={(e) => setTitle(e.target.value)}
+        value={title}
+      ></input>
       <button
         onClick={() => {
+          setCondition("completedOnly");
           setCheck(() => (task) => {
             return task.completed;
           });
-          navigate(`/tasks/${id}/?completed=true`);
+          navigate(`?completed=true`);
         }}
       >
         only completed
       </button>
       <button
         onClick={() => {
+          setCondition("uncompletedOnly");
           setCheck(() => (task) => {
             return !task.completed;
           });
-          navigate(`/tasks/${id}/?completed=false`);
+          navigate(`?completed=false`);
         }}
       >
         Uncompleted only
       </button>
       <button
-        id="byTitle"
-        onClick={() =>
+        id="byID"
+        onClick={() => {
+          setCondition("byId");
           setCheck(() => (task) => {
             return task.id == taskID;
-          })
-        }
+          });
+          navigate(`?id=${taskID}`);
+        }}
       >
         by ID
       </button>

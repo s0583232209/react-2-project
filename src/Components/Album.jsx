@@ -10,6 +10,7 @@ export default function Album(props) {
   const [id, setId] = useState(null);
   const href = useHref();
   const { register, handleSubmit } = useForm();
+  
   useEffect(() => {
     console.log(href);
     let hrefIn = href.split("/");
@@ -71,6 +72,7 @@ export default function Album(props) {
   return (
     <>
       <h1>Album {id} component</h1>
+
       <form onSubmit={handleSubmit(addPhoto)}>
         <label htmlFor="url">Enter URL</label>
         <input

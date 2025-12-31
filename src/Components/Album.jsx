@@ -10,17 +10,23 @@ export default function Album() {
   const { id } = useParams();
   const [albumId, setAlbumId] = useState(id);
   const [userId, setUserId] = useState();
-  const [visibleCount, setVisibleCount] = useState(JSON.parse(localStorage.getItem('visibleCountAlbum'))||8);
-  useEffect(()=>{ 
-    async function checkAccess(){
-      const response = await fetch(`http://localhost:3000/albums/${albumId}?userId=${userId}`)
-      console.log(response);
-      
-      if(!response.ok)
-        navigate('/access_denied')
+  const [visibleCount, setVisibleCount] = useState(
+    JSON.parse(localStorage.getItem("visibleCountAlbum")) || 8
+  );
+  useEffect(() => {
+    async function checkAccess() {
+      if (userId) {
+        const response = await fetch(
+          `http://localhost:3000/albums/${albumId}?userId=${userId}`
+        );
+        const data=await response.json()
+        console.log(data!=userId);
+        
+        if (data.userId!=userId) navigate("/access_denied");
+      }
     }
-    checkAccess()
-  },[])
+    checkAccess();
+  }, [userId]);
   useEffect(() => {
     let hrefIn = href.split("/");
     console.log(hrefIn[hrefIn.length - 2]);
@@ -31,13 +37,16 @@ export default function Album() {
     console.log(userId, albumId);
     const sessionId =
       JSON.parse(sessionStorage.getItem("current-user"))?.id || false;
-    if (!sessionId) navigate("/login");   
+    if (!sessionId) navigate("/login");
     if (userId !== sessionId && userId !== undefined)
       navigate("/access_denied");
   }, [userId]);
   useEffect(() => {
     localStorage.setItem("visibleCountAlbum", JSON.stringify(visibleCount));
-  },[visibleCount]);
+    return ()=>{
+      localStorage.removeItem('visibleCountAlbum')
+    }
+  }, [visibleCount]);
   useEffect(() => {
     async function getPhotos() {
       const response = await fetch(
@@ -84,9 +93,9 @@ export default function Album() {
     }
   }
   const visiblePhotos = photos.slice(0, visibleCount);
-  console.log('Total photos:', photos.length);
-  console.log('Visible count:', visibleCount);
-  console.log('Should show button:', visibleCount < photos.length);
+  console.log("Total photos:", photos.length);
+  console.log("Visible count:", visibleCount);
+  console.log("Should show button:", visibleCount < photos.length);
 
   return (
     <>
@@ -118,39 +127,41 @@ export default function Album() {
         <p>no photos</p>
       )}
       {/* Debug info */}
-      <p style={{ fontSize: '12px', color: '#666', textAlign: 'center' }}>
+      <p style={{ fontSize: "12px", color: "#666", textAlign: "center" }}>
         Showing {visiblePhotos.length} of {photos.length} photos
       </p>
-      
+
       {visibleCount < photos.length && (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          margin: '2rem 0'
-        }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            margin: "2rem 0",
+          }}
+        >
           <button
             onClick={() => {
               setVisibleCount(visibleCount + 10);
             }}
             style={{
-              backgroundColor: '#a8dadc',
-              color: '#064635',
-              border: 'none',
-              borderRadius: '6px',
-              padding: '0.8rem 2rem',
-              fontSize: '1rem',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              transition: '0.2s',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              backgroundColor: "#a8dadc",
+              color: "#064635",
+              border: "none",
+              borderRadius: "6px",
+              padding: "0.8rem 2rem",
+              fontSize: "1rem",
+              cursor: "pointer",
+              fontWeight: "bold",
+              transition: "0.2s",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
             }}
             onMouseOver={(e) => {
-              e.target.style.backgroundColor = '#90c9d0';
-              e.target.style.transform = 'translateY(-1px)';
+              e.target.style.backgroundColor = "#90c9d0";
+              e.target.style.transform = "translateY(-1px)";
             }}
             onMouseOut={(e) => {
-              e.target.style.backgroundColor = '#a8dadc';
-              e.target.style.transform = 'translateY(0)';
+              e.target.style.backgroundColor = "#a8dadc";
+              e.target.style.transform = "translateY(0)";
             }}
           >
             📷 Show More Photos

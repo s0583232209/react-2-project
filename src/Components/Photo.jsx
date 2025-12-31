@@ -196,7 +196,11 @@ export default function Photo(props) {
               color: '#064635',
               fontWeight: '500',
               textAlign: 'center',
-              wordBreak: 'break-word'
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word',
+              hyphens: 'auto',
+              lineHeight: '1.3',
+              maxWidth: '100%'
             }}>
               {props.title}
             </p>

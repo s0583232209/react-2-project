@@ -270,6 +270,8 @@ export default function Posts() {
                 key={post.id}
                 {...post}
                 currentUser={post.userId === ID}
+                email={post.email}
+                username={post.username}
                 edit={updatePost}
                 onDelete={deletePost}
                 isExpanded={false}

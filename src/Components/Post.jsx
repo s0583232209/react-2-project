@@ -1,162 +1,3 @@
-// import { useState } from 'react'
-// import Comments from './Comments';
-// export default function Post(props) {
-//     const [editing, setEditing] = useState(false);
-//     const [newTitle, setNewTitle] = useState(props.title);
-//     const [newBody, setNewBody] = useState(props.body);
-//     const [fullPost, setFullPost] = useState(false);
-//     const [showComments, setShowComments] = useState(false);
-//     function startEdit() {
-//         setNewTitle(props.title);
-//         setNewBody(props.body);
-//         setEditing(true);
-//     }
-//     function cancelEdit() {
-//         setEditing(false);
-//     }
-//     function saveEdit() {
-//         if (newTitle.trim() === "") return;
-//         props.edit(props.id, { title: newTitle, body: newBody });
-//         setEditing(false);
-//     }
-
-//     return (
-//         <>
-//             {editing ? (<>
-//                 <input type="text" value={newTitle} onChange={e => setNewTitle(e.target.value)} autoFocus />
-//                 <input type="text" value={newBody} onChange={e => setNewBody(e.target.value)} />
-//                 <button onClick={saveEdit}>Save</button>
-//                 <button onClick={cancelEdit}>Cancel</button>
-//             </>) : (<>
-//                 <h3>ID:{props.id}</h3>
-//                 <h2>{props.title}</h2>
-//                 {/* {fullPost ? (<>
-//                     <h3>{props.body}</h3>
-//                     <button className="closeFullPost" onClick={() => setFullPost(false)}>Close Full Post</button>
-//                     <button className="showComments" onClick={() => setShowComments(true)}>Show Comments</button>
-//                 </>) : (<>
-//                     <button className="openFullPost" onClick={() => setFullPost(true)}>Open Full Post</button>
-//                 </>)} */}
-//                 {props.isExpanded ? (
-//                     <>
-//                         <h3>{props.body}</h3>
-//                         <button onClick={props.onClose}>Close Full Post</button>
-//                         <button className="showComments" onClick={() => setShowComments(true)}>Show Comments</button>
-//                         {/* Show comments here */}
-//                     </>
-//                 ) : (
-//                     <button onClick={props.onOpen}>Open Full Post</button>
-//                 )}
-
-//                 {props.currentUser ? (<>
-//                     <button className="delete" onClick={() => props.onDelete(props.id)}>Delete</button>
-//                     <button className="edit" onClick={startEdit}>Edit</button>
-//                 </>) : null}
-//             </>)}
-//             {
-//                 (<>
-//                     <Comments key={props.id} postId={props.id} showComments={showComments} setShowComments={setShowComments}></Comments>
-//                 </>)
-//             }
-//         </>
-//     )
-// }
-
-
-
-// import { useState } from "react";
-
-// export default function Post(props) {
-//   const [editing, setEditing] = useState(false);
-//   const [newTitle, setNewTitle] = useState(props.title);
-//   const [newBody, setNewBody] = useState(props.body);
-//   const [fullPost, setFullPost] = useState(false);
-//   const [showComments, setShowComments] = useState(false);
-
-//   function startEdit() {
-//     setNewTitle(props.title);
-//     setNewBody(props.body);
-//     setEditing(true);
-//   }
-
-//   function cancelEdit() {
-//     setEditing(false);
-//   }
-
-//   function saveEdit() {
-//     if (newTitle.trim() === "") return;
-//     props.edit(props.id, { title: newTitle, body: newBody });
-//     setEditing(false);
-//   }
-
-//   function handleExpand() {
-//     setFullPost(true);
-//     props.onExpand && props.onExpand(props.id);
-//   }
-
-//   function handleCollapse() {
-//     setFullPost(false);
-//     props.onCollapse && props.onCollapse();
-//   }
-
-//   return (
-//     <div className={`post ${fullPost ? "expanded-floating" : ""}`}>
-//       {editing ? (
-//         <>
-//           <input
-//             type="text"
-//             value={newTitle}
-//             onChange={(e) => setNewTitle(e.target.value)}
-//             autoFocus
-//           />
-//           <input
-//             type="text"
-//             value={newBody}
-//             onChange={(e) => setNewBody(e.target.value)}
-//           />
-//           <button onClick={saveEdit}>Save</button>
-//           <button onClick={cancelEdit}>Cancel</button>
-//         </>
-//       ) : (
-//         <>
-//           <h3>ID: {props.id}</h3>
-//           <h2>{props.title}</h2>
-//           {fullPost && <p>{props.body}</p>}
-
-//           {!fullPost && (
-//             <button className="openFullPost" onClick={handleExpand}>
-//               Open Full Post
-//             </button>
-//           )}
-//           {fullPost && (
-//             <button className="closeFullPost" onClick={handleCollapse}>
-//               Close Full Post
-//             </button>
-//           )}
-
-//           {props.currentUser && (
-//             <>
-//               <button className="delete" onClick={() => props.onDelete(props.id)}>
-//                 Delete
-//               </button>
-//               <button className="edit" onClick={startEdit}>
-//                 Edit
-//               </button>
-//             </>
-//           )}
-
-//           {fullPost && (
-//             <button className="showComments" onClick={() => setShowComments(true)}>
-//               Show Comments
-//             </button>
-//           )}
-
-//           {props.showComments && <div className="comments">{props.comments}</div>}
-//         </>
-//       )}
-//     </div>
-//   );
-// }
 import { useState, useEffect, useRef } from "react";
 import Comments from "./Comments";
 
@@ -165,15 +6,24 @@ export default function Post(props) {
     const [newTitle, setNewTitle] = useState(props.title);
     const [newBody, setNewBody] = useState(props.body);
     const [showComments, setShowComments] = useState(false);
+    const [user, setUser] = useState();
     const postRef = useRef(null);
+    useEffect(() => {
+        async function getUser() {
+            const response = await fetch(`http://localhost:3000/users/${props.userId}`);
+            const userData = await response.json();
+            setUser(userData);
+            console.log(userData);
+        }
+        getUser();
+    }, [props.userId]);
 
     useEffect(() => {
         setNewTitle(props.title);
         setNewBody(props.body);
-        setShowComments(false); // reset comments toggle when post changes
+        setShowComments(false);
     }, [props.title, props.body, props.id]);
 
-    // Click outside logic
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -225,7 +75,9 @@ export default function Post(props) {
                 </>
             ) : (
                 <>
-                    <h3>ID: {props.id}</h3>
+                    <h4>ID: {props.id}</h4>
+                    {user && <><h3>User: {user.username}</h3>
+                    </>}
                     <h2>{props.title}</h2>
 
                     {props.isExpanded && <p>{props.body}</p>}
@@ -244,11 +96,10 @@ export default function Post(props) {
                         </>
                     )}
 
-                    {/* Show Comments button only in expanded mode */}
                     {props.isExpanded && (
                         <>
                             <button onClick={toggleComments}>
-                                {showComments ? "Hide Comments" : "Show Comments"}
+                                showComments
                             </button>
 
 
@@ -257,7 +108,10 @@ export default function Post(props) {
                         </>
                     )}
                     <div className="comments-container">
-                        <Comments key={props.id} postId={props.id} showComments={showComments} setShowComments={setShowComments} />
+                        <Comments key={props.id}
+                            postId={props.id}
+                            showComments={showComments}
+                            setShowComments={setShowComments} />
                     </div>
                 </>
             )}

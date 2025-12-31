@@ -9,19 +9,17 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Task from "./Task";
 import Login from "./Login";
-import { use } from "react";
 export default function Tasks(props) {
   const navigate = useNavigate();
-  const {id}=useParams()
+  const { id } = useParams();
   useEffect(() => {
     if (!userID) navigate("/login", { state: "this should be the url" });
-    console.log(id==userID);
-    if(!(id==userID))
-      navigate("/access_denied")
+    console.log(id == userID);
+    if (!(id == userID)) navigate("/access_denied");
   }, []);
   const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
   const [tasksList, setTasksList] = useState(
-    JSON.parse(localStorage.getItem("tasksListTasks")) || []
+    JSON.parse(localStorage.getItem("tasksList")) || []
   );
   const [newTask, setNewTask] = useState(false);
   const { register, handleSubmit, reset } = useForm();
@@ -91,20 +89,27 @@ export default function Tasks(props) {
     else localStorage.removeItem("conditionTasks");
   }, [condition]);
   useEffect(() => {
+    console.log(tasksList.length);
+
     if (tasksList.length == 0) {
       async function getTasks() {
         console.log("in function");
+        console.log(userID);
 
         if (!userID) return;
         const response = await fetch(
-          `http://localhost:3000/tasks/?userId=$${userID}`
+          `http://localhost:3000/tasks/?userId=${userID}`
         );
+        console.log(response);
+
         if (!response.ok)
           throw new Error(
             "Error: response is not ok, status:  " + response.status
           );
         const data = await response.json();
         setTasksList(data);
+        console.log("after set");
+        console.log(await data);
       }
       if (tasksList.length == 0) getTasks();
     }

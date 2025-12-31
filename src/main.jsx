@@ -10,6 +10,7 @@ import Posts from "../src/Components/Posts.jsx";
 import Register from "../src/Components/Register.jsx";
 import Task from "./Components/Task.jsx";
 import Tasks from "./Components/Tasks.jsx";
+import { AccessDenied } from "./Components/AccessDenied.jsx";
 import {
   BrowserRouter as Router,
   Routes,
@@ -44,6 +45,7 @@ createRoot(document.getElementById("root")).render(
       {/* <Route path="/tasks" element={<Outlet></Outlet>}> */}
         <Route path=":id" element={<Task />} />
       </Route>
+      <Route path="/access_denied" element={<AccessDenied />}></Route>
       <Route path="*" element={<ErrorPage />}></Route>
     </Routes>
   </Router>

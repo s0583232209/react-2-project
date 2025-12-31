@@ -12,10 +12,14 @@ import Login from "./Login";
 import { use } from "react";
 export default function Tasks(props) {
   const navigate = useNavigate();
+  const {id}=useParams()
   useEffect(() => {
-    if (!id) navigate("/login", { state: "this should be the url" });
+    if (!userID) navigate("/login", { state: "this should be the url" });
+    console.log(id==userID);
+    if(!(id==userID))
+      navigate("/access_denied")
   }, []);
-  const id = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
+  const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
   const [tasksList, setTasksList] = useState(
     JSON.parse(localStorage.getItem("tasksListTasks")) || []
   );
@@ -84,17 +88,16 @@ export default function Tasks(props) {
   useEffect(() => {
     if (condition)
       localStorage.setItem("conditionTasks", JSON.stringify(condition));
-    else
-      localStorage.removeItem('conditionTasks')
+    else localStorage.removeItem("conditionTasks");
   }, [condition]);
   useEffect(() => {
     if (tasksList.length == 0) {
       async function getTasks() {
         console.log("in function");
 
-        if (!id) return;
+        if (!userID) return;
         const response = await fetch(
-          `http://localhost:3000/tasks/?userId=${id}`
+          `http://localhost:3000/tasks/?userId=$${userID}`
         );
         if (!response.ok)
           throw new Error(
@@ -105,7 +108,7 @@ export default function Tasks(props) {
       }
       if (tasksList.length == 0) getTasks();
     }
-  }, [id]);
+  }, [userID]);
   async function deleteTask(id) {
     const response = await fetch(`http://localhost:3000/tasks/${id}`, {
       method: "DELETE",
@@ -123,7 +126,7 @@ export default function Tasks(props) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: id,
+        userId: userID,
         title: data.title,
         completed: data.completed,
       }),
@@ -172,7 +175,7 @@ export default function Tasks(props) {
       return true;
     });
     removeAllConditions();
-    navigate(`/tasks/${id}`);
+    navigate(`/tasks/${userID}`);
   }
   function removeAllConditions() {
     setCondition(null);

@@ -43,6 +43,9 @@ export default function Album() {
   }, [userId]);
   useEffect(() => {
     localStorage.setItem("visibleCountAlbum", JSON.stringify(visibleCount));
+    return ()=>{
+      localStorage.removeItem('visibleCountAlbum')
+    }
   }, [visibleCount]);
   useEffect(() => {
     async function getPhotos() {

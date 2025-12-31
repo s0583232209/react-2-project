@@ -4,26 +4,34 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 export default function Album(props) {
   const navigate = useNavigate();
-  const [id, setId] = useState(null);
-
-  useEffect(() => {
-    const sessionId =
-      JSON.parse(sessionStorage.getItem("current-user"))?.id || false;
-    if (!sessionId) navigate("/login");
-    if (id !== sessionId) navigate("/access_denied");
-  }, [id]);
   const [photos, setPhotos] = useState([]);
   const href = useHref();
   const { register, handleSubmit } = useForm();
+  const { id } = useParams();
+  const [albumId, setAlbumId] = useState(id);
+  const [userId, setUserId] = useState();
   useEffect(() => {
+    console.log("in href");
+
     let hrefIn = href.split("/");
-    setId(hrefIn[hrefIn.length - 1]);
+    console.log(hrefIn[hrefIn.length - 2]);
+    setUserId(hrefIn[hrefIn.length - 2]);
   }, [href]);
+  useEffect(() => {
+    console.log("in user id", userId);
+
+    console.log(userId, albumId);
+    const sessionId =
+      JSON.parse(sessionStorage.getItem("current-user"))?.id || false;
+    if (!sessionId) navigate("/login");
+    if (userId !== sessionId && userId !== undefined)
+      navigate("/access_denied");
+  }, [userId]);
 
   useEffect(() => {
     async function getPhotos() {
       const response = await fetch(
-        `http://localhost:3000/photos/?albumId=${id}`
+        `http://localhost:3000/photos/?albumId=${albumId}`
       );
       const data = await response.json();
       setPhotos(data);
@@ -31,7 +39,7 @@ export default function Album(props) {
     getPhotos();
   }, [id]);
   async function deletePhoto(id) {
-    const response = await fetch(`http://localhost:3000/photos/${id}`, {
+    const response = await fetch(`http://localhost:3000/photos/${albumId}`, {
       method: "DELETE",
     });
     if (response.ok)
@@ -58,16 +66,17 @@ export default function Album(props) {
     const response = await fetch(`http://localhost:3000/photos`, {
       method: "POST",
       headers: { "content-Type": "application/json" },
-      body: JSON.stringify({ albumId: `${id}`, path: `${data.URL}` }),
+      body: JSON.stringify({ albumId: `${albumId}`, path: `${data.URL}` }),
     });
     if (response.ok) {
       const newPhoto = await response.json();
       setPhotos((prev) => [...prev, newPhoto]);
     }
   }
+
   return (
     <>
-      <h1>Album {id} component</h1>
+      <h1>Album {albumId} component</h1>
       <form onSubmit={handleSubmit(addPhoto)}>
         <label htmlFor="url">Enter URL</label>
         <input
@@ -94,6 +103,7 @@ export default function Album(props) {
       ) : (
         <p>no photos</p>
       )}
+  
     </>
   );
 }

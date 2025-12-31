@@ -4,12 +4,11 @@ import Album from "./Album";
 import AlbumLink from "./AlbumLink";
 export default function Albums(props) {
   const navigate = useNavigate();
-  const {id}=useParams()
+  const { id } = useParams();
   useEffect(() => {
     if (!userID) navigate("/login", { state: "this should be the url" });
-    console.log(id==userID);
-    if(!(id==userID))
-      navigate("/access_denied")
+    console.log(id == userID);
+    if (!(id == userID)) navigate("/access_denied");
   }, []);
   const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
   const [useresAlbums, setUsersAlbums] = useState([]);
@@ -58,9 +57,39 @@ export default function Albums(props) {
     }
     getAlbums();
   }, []);
+  async function addNewAlbum() {
+    console.log(fetch("http://localhost:3000/albums"));
 
+    const response = await fetch(`http://localhost:3000/albums`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: newAlbumsTitle,
+        userId: Number(userID),
+      }),
+    });
+    if (!response.ok) return console.log("error, status:" + response.status);
+    const newAlbum = await response.json();
+    setUsersAlbums((prev) => [...prev, newAlbum]);
+  }
+  const [newAlbumsTitle, setNewAlbumsTitle] = useState();
+  async function deleteAlbum(id) {
+    const response = await fetch(`http://localhost:3000/albums/${id}`, {
+      method: "DELETE",
+    });
+    if (response.ok) {
+      setUsersAlbums((prev) => prev.filter((album) => album.id != id));
+    } else console.log("error, statue:" + response.status);
+  }
   return (
     <>
+      <button onClick={addNewAlbum}>Add Albums</button>
+      <input
+        type="text"
+        onChange={(e) => {
+          setNewAlbumsTitle(e.target.value);
+        }}
+      ></input>
       <button
         onClick={() => {
           navigate(`?title=${searchTitle}`);
@@ -97,6 +126,7 @@ export default function Albums(props) {
               userId={userID}
               key={album.id}
               id={album.id}
+              deleteAlbum={deleteAlbum}
             ></AlbumLink>
           ) : null
         )

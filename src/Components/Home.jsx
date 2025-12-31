@@ -4,7 +4,6 @@ export default function Home() {
   const navigate = useNavigate();
   const currentUser = JSON.parse(sessionStorage.getItem("current-user")) || null;
   const [showInfo, setShowInfo] = useState(false);
-
   useEffect(() => {
     if (!currentUser) {
       navigate("/login");

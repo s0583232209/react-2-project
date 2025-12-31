@@ -1,18 +1,25 @@
 import { useState, useEffect } from "react";
-import { NavLink, Outlet, useNavigate, useHref } from "react-router-dom";
+import {
+  NavLink,
+  Outlet,
+  useNavigate,
+  useHref,
+  useParams,
+} from "react-router-dom";
 import Album from "./Album";
 export default function AlbumLink(props) {
   const navigate = useNavigate();
-  if (!sessionStorage.getItem("current-user"))
-    navigate("/login", { state: "this should be the url" });
-  const [show, setShow] = useState(false);
-  const href = useHref();
+  const {id} = useParams()
   useEffect(() => {
-    console.log(href);
-
+    if (!userID) navigate("/login", { state: "this should be the url" });
+    if (!(id == userID)) navigate("/access_denied");
+  }, []);
+  const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
+  const [show, setShow] = useState(false);
+  useEffect(() => {
     if (show) {
       props.changeStateAlbumView(true);
-      navigate(`${href}/${props.id}`);
+      navigate(`${props.id}`);
     }
   }, [show]);
   return (

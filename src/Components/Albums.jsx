@@ -1,19 +1,22 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Album from "./Album";
 import AlbumLink from "./AlbumLink";
 export default function Albums(props) {
   const navigate = useNavigate();
-  if (!sessionStorage.getItem("current-user"))
-    navigate("/login", { state: "this should be the url" });
-  const [userId, setUserId] = useState(
-    JSON.parse(sessionStorage.getItem("current-user")).id
-  );
+  const {id}=useParams()
+  useEffect(() => {
+    if (!userID) navigate("/login", { state: "this should be the url" });
+    console.log(id==userID);
+    if(!(id==userID))
+      navigate("/access_denied")
+  }, []);
+  const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
   const [useresAlbums, setUsersAlbums] = useState([]);
   const [albumView, setAlbumView] = useState(false);
   const [searchID, setSearchID] = useState(() => {
-    if (localStorage.getItem("searchID"))
-      return JSON.parse(localStorage.getItem("searchID"));
+    if (localStorage.getItem("searchIDAlbums"))
+      return JSON.parse(localStorage.getItem("searchIDAlbums"));
     else return "";
   });
   const [searchTitle, setSearchTitle] = useState(() => {
@@ -31,18 +34,30 @@ export default function Albums(props) {
     localStorage.setItem("searchTitleAlbums", JSON.stringify(searchTitle));
   }, [searchTitle]);
   useEffect(() => {
+    console.log("in effect of check");
+
+    if (searchID != "")
+      setCheck(() => (album) => {
+        return album.id == searchID;
+      });
+    if (searchTitle != "")
+      setCheck(() => (album) => {
+        return album.title == searchTitle;
+      });
+  }, []);
+  useEffect(() => {
     async function getAlbums() {
-      console.log(userId);
-      if (userId) {
+      console.log(userID);
+      if (userID) {
         const response = await fetch(
-          `http://localhost:3000/albums/?userId=${userId}`
+          `http://localhost:3000/albums/?userId=${userID}`
         );
         const data = await response.json();
         setUsersAlbums(data);
       }
     }
     getAlbums();
-  }, [userId]);
+  }, []);
 
   return (
     <>
@@ -79,7 +94,7 @@ export default function Albums(props) {
             <AlbumLink
               title={album.title}
               changeStateAlbumView={setAlbumView}
-              userId={userId}
+              userId={userID}
               key={album.id}
               id={album.id}
             ></AlbumLink>

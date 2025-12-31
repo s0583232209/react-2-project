@@ -4,14 +4,12 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 export default function Album(props) {
   const navigate = useNavigate();
-  const [counter, setCounter] = 0;
   const [photos, setPhotos] = useState([]);
   const href = useHref();
   const { register, handleSubmit } = useForm();
   const { id } = useParams();
   const [albumId, setAlbumId] = useState(id);
   const [userId, setUserId] = useState();
-  useEffect(() => {}, [counter]);
   useEffect(() => {
     console.log("in href");
 
@@ -105,8 +103,7 @@ export default function Album(props) {
       ) : (
         <p>no photos</p>
       )}
-      (more? (<button onClick={showMore}>See More</button>):(
-      <p>no more photos</p>))
+  
     </>
   );
 }

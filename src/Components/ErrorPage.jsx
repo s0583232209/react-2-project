@@ -1,4 +1,4 @@
-import dinosaur404 from "../assets/dinosaur404.png"
+import dinosaur404error from "../assets/dinosaur404.png"
 export default function ErrorPage() {
   return (
     <div style={{
@@ -23,7 +23,7 @@ export default function ErrorPage() {
           fontSize: '6rem',
           marginBottom: '1.5rem',
           animation: 'bounce 2s infinite'
-        }}><img src={dinosaur404} width={"300px"}></img></div>
+        }}><img src={dinosaur404error} width={"300px"}></img></div>
         <h1 style={{
           fontSize: '2.5rem',
           margin: '0 0 1rem 0',

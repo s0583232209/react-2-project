@@ -28,9 +28,15 @@ export default function Albums(props) {
   });
   useEffect(() => {
     localStorage.setItem("searchIDAlbums", JSON.stringify(searchID));
+    return ()=>{
+      localStorage.removeItem("searchIDAlbums")
+    }
   }, [searchID]);
   useEffect(() => {
     localStorage.setItem("searchTitleAlbums", JSON.stringify(searchTitle));
+    return ()=>{
+      localStorage.removeItem("searchTitleAlbums")
+    }
   }, [searchTitle]);
   useEffect(() => {
     console.log("in effect of check");
@@ -58,8 +64,6 @@ export default function Albums(props) {
     getAlbums();
   }, []);
   async function addNewAlbum() {
-    console.log(fetch("http://localhost:3000/albums"));
-
     const response = await fetch(`http://localhost:3000/albums`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

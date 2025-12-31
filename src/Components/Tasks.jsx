@@ -38,9 +38,10 @@ export default function Tasks(props) {
     return null;
   });
   useEffect(() => {
-    console.log(condition == null);
-
     if (condition == null) localStorage.removeItem("conditionTasks");
+    return () => {
+      localStorage.removeItem("conditionTasks");
+    };
   }, [condition]);
   useEffect(() => {
     if (tasksList.length == 0) return;
@@ -75,13 +76,22 @@ export default function Tasks(props) {
   }, [condition, title, taskID]);
   useEffect(() => {
     localStorage.setItem("tasksListTasks", JSON.stringify(tasksList));
+    return () => {
+      localStorage.removeItem("tasksListTasks");
+    };
   }, [tasksList]);
 
   useEffect(() => {
     localStorage.setItem("titleTasks", JSON.stringify(title));
+    return () => {
+      localStorage.removeItem("titleTasks");
+    };
   }, [title]);
   useEffect(() => {
     localStorage.setItem("taskIDTasks", JSON.stringify(taskID));
+    return ()=>{
+      localStorage.removeItem("taskIDTasks")
+    }
   }, [taskID]);
   useEffect(() => {
     if (condition)

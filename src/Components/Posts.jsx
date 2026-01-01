@@ -258,7 +258,7 @@ export default function Posts() {
         {/* Filters */}
         <div className="filters">
           <button
-            onClick={() => setCheck(() => (post) => post.title === title)}
+            onClick={() => setCheck(() => (post) => post.title.toLowerCase().includes(title.toLowerCase()))}
           >
             by title
           </button>

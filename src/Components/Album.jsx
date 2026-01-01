@@ -3,6 +3,7 @@ import Photo from "./Photo";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { NavBar } from "./NavBar";
+import "./Album.css";
 export default function Album() {
   const navigate = useNavigate();
   const [photos, setPhotos] = useState([]);
@@ -12,7 +13,7 @@ export default function Album() {
   const [albumId, setAlbumId] = useState(id);
   const [userId, setUserId] = useState();
   const [visibleCount, setVisibleCount] = useState(
-    JSON.parse(localStorage.getItem("visibleCountAlbum")) || 8
+    JSON.parse(localStorage.getItem("visibleCountAlbum")) || 10
   );
   useEffect(() => {
     async function checkAccess() {
@@ -20,10 +21,9 @@ export default function Album() {
         const response = await fetch(
           `http://localhost:3000/albums/${albumId}?userId=${userId}`
         );
-        const data=await response.json()
-        console.log(data!=userId);
-        
-        if (data.userId!=userId) navigate("/access_denied");
+        const data = await response.json();
+
+        if (data.userId != userId) navigate("/access_denied");
       }
     }
     checkAccess();
@@ -34,8 +34,6 @@ export default function Album() {
     setUserId(hrefIn[hrefIn.length - 2]);
   }, [href]);
   useEffect(() => {
-    console.log("in user id", userId);
-    console.log(userId, albumId);
     const sessionId =
       JSON.parse(sessionStorage.getItem("current-user"))?.id || false;
     if (!sessionId) navigate("/login");
@@ -44,20 +42,25 @@ export default function Album() {
   }, [userId]);
   useEffect(() => {
     localStorage.setItem("visibleCountAlbum", JSON.stringify(visibleCount));
-    return ()=>{
-      localStorage.removeItem('visibleCountAlbum')
-    }
+    return () => {
+      localStorage.removeItem("visibleCountAlbum");
+    };
   }, [visibleCount]);
   useEffect(() => {
     async function getPhotos() {
+      console.log(albumId);
+      console.log(visibleCount);
+
       const response = await fetch(
-        `http://localhost:3000/photos/?albumId=${albumId}`
+        `http://localhost:3000/photos/?albumId=${albumId}&_start=${
+          visibleCount - 10
+        }&_end=${visibleCount}`
       );
       const data = await response.json();
-      setPhotos(data);
+      setPhotos((prev) => [...prev, ...data]);
     }
     getPhotos();
-  }, [id]);
+  }, [id, visibleCount]);
   async function deletePhoto(id) {
     const response = await fetch(`http://localhost:3000/photos/${id}`, {
       method: "DELETE",
@@ -93,6 +96,8 @@ export default function Album() {
       setPhotos((prev) => [...prev, newPhoto]);
     }
   }
+  console.log(photos);
+
   const visiblePhotos = photos.slice(0, visibleCount);
   console.log("Total photos:", photos.length);
   console.log("Visible count:", visibleCount);
@@ -100,7 +105,7 @@ export default function Album() {
 
   return (
     <>
-    <NavBar></NavBar>
+      <NavBar></NavBar>
       <h1>Album {albumId} component</h1>
       <form onSubmit={handleSubmit(addPhoto)}>
         <label htmlFor="url">Enter URL</label>
@@ -114,26 +119,23 @@ export default function Album() {
         ></input>
         <button>Add</button>
       </form>
-      {visiblePhotos.length > 0 ? (
-        visiblePhotos.map((photo) => (
-          <Photo
-            title={photo.title}
-            key={photo.id}
-            path={photo.path}
-            id={photo.id}
-            delete={deletePhoto}
-            changeTitle={changeTitle}
-          />
-        ))
+      {photos.length > 0 ? (
+        <div className="photos-grid">
+          {photos.map((photo) => (
+            <Photo
+              title={photo.title}
+              key={photo.id}
+              path={photo.path}
+              id={photo.id}
+              delete={deletePhoto}
+              changeTitle={changeTitle}
+            />
+          ))}
+        </div>
       ) : (
         <p>no photos</p>
       )}
-      {/* Debug info */}
-      <p style={{ fontSize: "12px", color: "#666", textAlign: "center" }}>
-        Showing {visiblePhotos.length} of {photos.length} photos
-      </p>
-
-      {visibleCount < photos.length && (
+      {visibleCount <= photos.length ? (
         <div
           style={{
             display: "flex",
@@ -169,7 +171,7 @@ export default function Album() {
             📷 Show More Photos
           </button>
         </div>
-      )}
+      ) : null}
     </>
   );
 }

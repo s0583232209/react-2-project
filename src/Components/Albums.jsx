@@ -2,6 +2,7 @@ import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { NavBar } from "./NavBar";
 import AlbumLink from "./AlbumLink";
+
 export default function Albums(props) {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -23,6 +24,7 @@ export default function Albums(props) {
       return JSON.parse(localStorage.getItem("searchTitleAlbums"));
     else return "";
   });
+  const [newAlbumsTitle, setNewAlbumsTitle] = useState("");
   const [check, setCheck] = useState(() => () => {
     return true;
   });
@@ -75,8 +77,8 @@ export default function Albums(props) {
     if (!response.ok) return console.log("error, status:" + response.status);
     const newAlbum = await response.json();
     setUsersAlbums((prev) => [...prev, newAlbum]);
+    setNewAlbumsTitle("");
   }
-  const [newAlbumsTitle, setNewAlbumsTitle] = useState();
   async function deleteAlbum(id) {
     const response = await fetch(`http://localhost:3000/albums/${id}`, {
       method: "DELETE",
@@ -88,57 +90,66 @@ export default function Albums(props) {
   return (
     <>
      <NavBar></NavBar>
-      <button onClick={addNewAlbum}>Add Albums</button>
-      <input
-        type="text"
-        onChange={(e) => {
-          setNewAlbumsTitle(e.target.value);
-        }}
-      ></input>
-      <button
-        onClick={() => {
-          navigate(`?title=${searchTitle}`);
-          setCheck(() => (album) => {
-            return album.title == searchTitle;
-          });
-        }}
-      >
-        get by title
-      </button>
-      <input
-        type="text"
-        onChange={(e) => setSearchTitle(e.target.value)}
-      ></input>
-      <button
-        onClick={() => {
-          console.log(searchID);
-
-          navigate(`?id=${searchID}`);
-          setCheck(() => (album) => {
-            return album.id == searchID;
-          });
-        }}
-      >
-        get by ID
-      </button>
-      <input type="text" onChange={(e) => setSearchID(e.target.value)}></input>
-      {!albumView && useresAlbums.length > 0 ? (
-        useresAlbums.map((album) =>
-          check(album) ? (
-            <AlbumLink
-              title={album.title}
-              changeStateAlbumView={setAlbumView}
-              userId={userID}
-              key={album.id}
-              id={album.id}
-              deleteAlbum={deleteAlbum}
-            ></AlbumLink>
-          ) : null
-        )
-      ) : !albumView ? (
-        <p>no albums</p>
-      ) : null}
-      <Outlet />
+     <h1>Albums</h1>
+     <div className="filters">
+       <button onClick={addNewAlbum}>Add Album</button>
+       <input
+         type="text"
+         placeholder="Enter album title"
+         value={newAlbumsTitle}
+         onChange={(e) => setNewAlbumsTitle(e.target.value)}
+       />
+       <button
+         onClick={() => {
+           navigate(`?title=${searchTitle}`);
+           setCheck(() => (album) => {
+             return album.title == searchTitle;
+           });
+         }}
+       >
+         By Title
+       </button>
+       <input
+         type="text"
+         placeholder="Enter title"
+         value={searchTitle}
+         onChange={(e) => setSearchTitle(e.target.value)}
+       />
+       <button
+         onClick={() => {
+           console.log(searchID);
+           navigate(`?id=${searchID}`);
+           setCheck(() => (album) => {
+             return album.id == searchID;
+           });
+         }}
+       >
+         By ID
+       </button>
+       <input 
+         type="text" 
+         placeholder="Enter ID"
+         value={searchID}
+         onChange={(e) => setSearchID(e.target.value)}
+       />
+     </div>
+     {!albumView && useresAlbums.length > 0 ? (
+       useresAlbums.map((album) =>
+         check(album) ? (
+           <AlbumLink
+             title={album.title}
+             changeStateAlbumView={setAlbumView}
+             userId={userID}
+             key={album.id}
+             id={album.id}
+             deleteAlbum={deleteAlbum}
+           ></AlbumLink>
+         ) : null
+       )
+     ) : !albumView ? (
+       <p>No Albums</p>
+     ) : null}
+     <Outlet />
     </>
   );
 }

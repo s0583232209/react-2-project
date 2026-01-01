@@ -7,6 +7,7 @@ import {
   useParams,
 } from "react-router-dom";
 import Album from "./Album";
+
 export default function AlbumLink(props) {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -23,20 +24,19 @@ export default function AlbumLink(props) {
     }
   }, [show]);
   return (
-    <>
-      <div>
-        <button
-          onClick={() => {
-            console.log("in on Click");
-
-            setShow(true);
-          }}
-        >
-          Press to open album {props.id} title: {props.title}
-        </button>
-
-        <button onClick={()=>props.deleteAlbum(props.id)}>DELETE</button>
-      </div>{" "}
-    </>
+    <div className="albumLink">
+      <h3>#{props.id} - {props.title}</h3>
+      <button
+        onClick={() => {
+          console.log("in on Click");
+          setShow(true);
+        }}
+      >
+        Open Album
+      </button>
+      <button onClick={() => props.deleteAlbum(props.id)}>
+        Delete
+      </button>
+    </div>
   );
 }

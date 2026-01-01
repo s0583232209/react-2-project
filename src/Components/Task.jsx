@@ -1,24 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
 export default function Task(props) {
   const navigate = useNavigate();
-  if (!sessionStorage.getItem("current-user")) navigate("/login",{state:"this should be the url"});
+  if (!sessionStorage.getItem("current-user"))
+    navigate("/login", { state: "this should be the url" });
   const [editing, setEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(props.title);
-  function startEdit() {
+
+  useEffect(() => {
     setNewTitle(props.title);
+  }, [props.title, props.id]);
+
+  function startEdit() {
     setEditing(true);
   }
+
   function cancelEdit() {
     setEditing(false);
   }
+
   function saveEdit() {
     if (newTitle.trim() === "") return;
     props.edit(props.id, { title: newTitle, completed: props.completed });
     setEditing(false);
   }
+
   return (
-    <>
+    <div className="task">
       {editing ? (
         <>
           <input
@@ -32,26 +41,28 @@ export default function Task(props) {
         </>
       ) : (
         <>
-          <h3>{props.id}</h3>
+          <h3>ID: {props.id}</h3>
           <h2>{props.title}</h2>
-          <input
-            type="checkbox"
-            onChange={() =>
-              props.edit(props.id, {
-                title: props.title,
-                completed: !props.completed,
-              })
-            }
-            checked={props.completed}
-          ></input>
-          <button className="delete" onClick={() => props.onDelete(props.id)}>
-            Delete
-          </button>
-          <button className="edit" onClick={startEdit}>
-            Edit
-          </button>
+
+          <div>
+            <input
+              id={`complete-${props.id}`}
+              type="checkbox"
+              onChange={() =>
+                props.edit(props.id, {
+                  title: props.title,
+                  completed: !props.completed,
+                })
+              }
+              checked={props.completed}
+            />
+            <label htmlFor={`complete-${props.id}`}>Complete!</label>
+          </div>
+
+          <button onClick={() => props.onDelete(props.id)}>Delete</button>
+          <button onClick={startEdit}>Edit</button>
         </>
       )}
-    </>
+    </div>
   );
 }

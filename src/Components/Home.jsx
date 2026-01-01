@@ -15,12 +15,13 @@ export default function Home() {
 
   return (
     <>
+      <NavBar></NavBar>
       <h1>Home</h1>
       <h2>Welcome, {currentUser.name}!</h2>
       <button className="showInfo" onClick={() => setShowInfo(!showInfo)}>
         Info
       </button>
-      <NavBar></NavBar>
+
       {showInfo ? (
         <>
           <h3>Name: {currentUser.name}</h3>

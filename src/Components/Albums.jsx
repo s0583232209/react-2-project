@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Album from "./Album";
+import { NavBar } from "./NavBar";
 import AlbumLink from "./AlbumLink";
 export default function Albums(props) {
   const navigate = useNavigate();
@@ -87,6 +87,7 @@ export default function Albums(props) {
   }
   return (
     <>
+     <NavBar></NavBar>
       <button onClick={addNewAlbum}>Add Albums</button>
       <input
         type="text"

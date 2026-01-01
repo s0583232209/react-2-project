@@ -8,6 +8,7 @@ import {
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Task from "./Task";
+import { NavBar } from "./NavBar";
 import Login from "./Login";
 import { use } from "react";
 export default function Tasks(props) {
@@ -198,6 +199,7 @@ export default function Tasks(props) {
   }
   return (
     <>
+    <NavBar></NavBar>
       <h1>Tasks</h1>
       <select onChange={(e) => sortList(e.target.value)}>
         <option value="sort">Sort By</option>

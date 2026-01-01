@@ -2,6 +2,7 @@ import { useHref, useNavigate, useParams } from "react-router-dom";
 import Photo from "./Photo";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { NavBar } from "./NavBar";
 export default function Album() {
   const navigate = useNavigate();
   const [photos, setPhotos] = useState([]);
@@ -99,6 +100,7 @@ export default function Album() {
 
   return (
     <>
+    <NavBar></NavBar>
       <h1>Album {albumId} component</h1>
       <form onSubmit={handleSubmit(addPhoto)}>
         <label htmlFor="url">Enter URL</label>

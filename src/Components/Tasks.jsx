@@ -8,6 +8,7 @@ import {
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Task from "./Task";
+import { NavBar } from "./NavBar";
 import Login from "./Login";
 export default function Tasks(props) {
   const navigate = useNavigate();
@@ -44,7 +45,11 @@ export default function Tasks(props) {
     };
   }, [condition]);
   useEffect(() => {
+    console.log('in set check',tasksList.length);
+    
     if (tasksList.length == 0) return;
+    console.log(condition);
+    
     switch (condition) {
       case "byId":
         setCheck(() => (task) => {
@@ -73,7 +78,7 @@ export default function Tasks(props) {
         break;
     }
     return;
-  }, [condition, title, taskID]);
+  }, [condition, title, taskID,tasksList]);
   useEffect(() => {
     localStorage.setItem("tasksListTasks", JSON.stringify(tasksList));
     return () => {
@@ -204,6 +209,7 @@ export default function Tasks(props) {
   }
   return (
     <>
+    <NavBar></NavBar>
       <h1>Tasks</h1>
       <select onChange={(e) => sortList(e.target.value)}>
         <option value="sort">Sort By</option>

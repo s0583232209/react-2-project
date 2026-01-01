@@ -1,5 +1,5 @@
 import dinosaur404error from "../assets/dinosaur404.png"
-import { useNavigate } from "react-router-dom";
+import panda404 from "../assets/panda404.png"
 export default function ErrorPage() {
   const navigate = useNavigate();
   return (
@@ -25,7 +25,7 @@ export default function ErrorPage() {
           fontSize: '6rem',
           marginBottom: '1.5rem',
           animation: 'bounce 2s infinite'
-        }}><img src={dinosaur404error} width={"300px"}></img></div>
+        }}><img src={panda404} width={"300px"}></img></div>
         <h1 style={{
           fontSize: '2.5rem',
           margin: '0 0 1rem 0',

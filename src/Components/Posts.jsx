@@ -158,13 +158,37 @@ export default function Posts() {
   const [postsList, setPostsList] = useState([]);
   const [newPost, setNewPost] = useState(false);
   const { register, handleSubmit, reset } = useForm();
-  const [title, setTitle] = useState("");
-  const [postID, setPostID] = useState("");
-  const [openPostId, setOpenPostId] = useState(null);
+  const [title, setTitle] = useState(
+    JSON.parse(localStorage.getItem("titlePosts")) || ""
+  );
+  const [postID, setPostID] = useState(
+    JSON.parse(localStorage.getItem("idPosts")) || ""
+  );
+  const [openPostId, setOpenPostId] = useState(
+    JSON.parse(localStorage.getItem("openPostID")) || null
+  );
   const [check, setCheck] = useState(() => (post) => true);
   const isPostOpen = !!openPostId;
-
+  useEffect(() => {
+    localStorage.setItem("titlePosts", JSON.stringify(title));
+    return () => {
+      localStorage.removeItem("titlePosts");
+    };
+  }, [title]);
+  useEffect(() => {
+    localStorage.setItem("idPosts", JSON.stringify(postID));
+    return () => {
+      localStorage.removeItem("idPosts");
+    };
+  }, [postID]);
+  useEffect(() => {
+    localStorage.setItem("openPostID", JSON.stringify(openPostId));
+    return () => {
+      localStorage.removeItem("openPostID");
+    };
+  }, [openPostId]);
   // Fetch posts on mount
+  useEffect(()=>{},[])
   useEffect(() => {
     async function getPosts() {
       const response = await fetch(`http://localhost:3000/posts/`);
@@ -227,7 +251,7 @@ export default function Posts() {
 
   return (
     <>
-    <NavBar></NavBar>
+      <NavBar></NavBar>
       <div className={`main-content ${isPostOpen ? "blurred" : ""}`}>
         <h1>Posts</h1>
 

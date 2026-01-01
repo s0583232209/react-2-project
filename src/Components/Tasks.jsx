@@ -46,7 +46,11 @@ export default function Tasks(props) {
     };
   }, [condition]);
   useEffect(() => {
+    console.log('in set check',tasksList.length);
+    
     if (tasksList.length == 0) return;
+    console.log(condition);
+    
     switch (condition) {
       case "byId":
         setCheck(() => (task) => {
@@ -75,7 +79,7 @@ export default function Tasks(props) {
         break;
     }
     return;
-  }, [condition, title, taskID]);
+  }, [condition, title, taskID,tasksList]);
   useEffect(() => {
     localStorage.setItem("tasksListTasks", JSON.stringify(tasksList));
     return () => {

@@ -223,7 +223,7 @@ export default function Tasks(props) {
         onClick={() => {
           setCondition("byTitle");
           setCheck(() => (task) => {
-            return task.title == title;
+            return task.title.toLowerCase().includes(title.toLowerCase());
           });
           navigate(`?title=${title}`);
         }}

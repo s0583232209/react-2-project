@@ -115,6 +115,9 @@ export default function Tasks(props) {
         sortList("false");
         break;
     }
+    return ()=>{
+      localStorage.removeItem('sortConditionTask')
+    }
   }, [sortConditionTasks]);
   useEffect(() => {
     localStorage.setItem("tasksList", JSON.stringify(tasksList));

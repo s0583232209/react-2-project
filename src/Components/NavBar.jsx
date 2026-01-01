@@ -13,6 +13,7 @@ export function NavBar() {
   }, [currentUser, navigate]);
   if (!currentUser) return null;
   function logOut() {
+    localStorage.clear()
     sessionStorage.removeItem("current-user");
     navigate("/login");
   }

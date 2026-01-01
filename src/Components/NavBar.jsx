@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import "./NavBar.css";
 
 export function NavBar() {
   const navigate = useNavigate();
@@ -16,28 +17,30 @@ export function NavBar() {
     navigate("/login");
   }
   return (
-    <>
-      <button className="logOut" onClick={logOut}>
+    <nav className="navbar">
+      <div className="nav-links">
+        <button
+          className="nav-button"
+          onClick={() => navigate(`/Albums/${currentUser.id}`)}
+        >
+          Albums
+        </button>
+        <button
+          className="nav-button"
+          onClick={() => navigate(`/Posts/${currentUser.id}`)}
+        >
+          Posts
+        </button>
+        <button
+          className="nav-button"
+          onClick={() => navigate(`/Tasks/${currentUser.id}`)}
+        >
+          Tasks
+        </button>
+      </div>
+      <button className="nav-button logout-button" onClick={logOut}>
         Log Out
       </button>
-      <button
-        className="albums"
-        onClick={() => navigate(`/Albums/${currentUser.id}`)}
-      >
-        Albums
-      </button>
-      <button
-        className="posts"
-        onClick={() => navigate(`/Posts/${currentUser.id}`)}
-      >
-        Posts
-      </button>
-      <button
-        className="tasks"
-        onClick={() => navigate(`/Tasks/${currentUser.id}`)}
-      >
-        Tasks
-      </button>
-    </>
+    </nav>
   );
 }

@@ -1,6 +1,7 @@
 import dinosaur404error from "../assets/dinosaur404.png"
 import panda404 from "../assets/panda404.png"
 export default function ErrorPage() {
+  const navigate = useNavigate();
   return (
     <div style={{
       minHeight: '100vh',
@@ -49,15 +50,15 @@ export default function ErrorPage() {
           transition: '0.2s',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
         }}
-        onMouseOver={(e) => {
-          e.target.style.backgroundColor = '#90c9d0';
-          e.target.style.transform = 'translateY(-1px)';
-        }}
-        onMouseOut={(e) => {
-          e.target.style.backgroundColor = '#a8dadc';
-          e.target.style.transform = 'translateY(0)';
-        }}
-        onClick={() => window.history.back()}>
+          onMouseOver={(e) => {
+            e.target.style.backgroundColor = '#90c9d0';
+            e.target.style.transform = 'translateY(-1px)';
+          }}
+          onMouseOut={(e) => {
+            e.target.style.backgroundColor = '#a8dadc';
+            e.target.style.transform = 'translateY(0)';
+          }}
+          onClick={() => { navigate(`/`) }}>
           🏠 Go Back Home
         </button>
       </div>

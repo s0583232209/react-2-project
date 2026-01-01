@@ -10,7 +10,6 @@ import { useForm } from "react-hook-form";
 import Task from "./Task";
 import { NavBar } from "./NavBar";
 import Login from "./Login";
-import { use } from "react";
 export default function Tasks(props) {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -95,7 +94,7 @@ export default function Tasks(props) {
   }, [title]);
   useEffect(() => {
     localStorage.setItem("taskIDTasks", JSON.stringify(taskID));
-    return ()=>{
+    return () => {
       localStorage.removeItem("taskIDTasks")
     }
   }, [taskID]);
@@ -180,9 +179,16 @@ export default function Tasks(props) {
       sortByCompleted(sortBy);
       return;
     }
-    tasksList.sort((a, b) => a[sortBy].localeCompare(b[sortBy]));
+    if (sortBy == "id")
+      tasksList.sort((a, b) => convertIdToInt(a[sortBy]) - convertIdToInt(b[sortBy]));
+    else
+      tasksList.sort((a, b) => a[sortBy].localeCompare(b[sortBy]));
     setTasksList([...tasksList]);
     navigate(`?sortBy=${sortBy}`);
+  }
+  function convertIdToInt(id) {
+    if (typeof id === "number") return id;
+    return parseInt(id, 16);
   }
   function sortByCompleted(startWith) {
     if (startWith == "false")

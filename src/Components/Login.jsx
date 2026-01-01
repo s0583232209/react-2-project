@@ -15,7 +15,8 @@ export default function Login() {
     sessionStorage.setItem("current-user", JSON.stringify(user[0]));
     navigation("/");
   }
-
+  sessionStorage.clear()
+localStorage.clear()
   return (
     <form onSubmit={handleSubmit(login)}>
       <label htmlFor="userName">User Name</label>

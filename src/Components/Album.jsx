@@ -6,40 +6,37 @@ import { NavBar } from "./NavBar";
 import "./Album.css";
 export default function Album() {
   const navigate = useNavigate();
-  const [photos, setPhotos] = useState([]);
   const href = useHref();
   const { register, handleSubmit } = useForm();
+  const [photos, setPhotos] = useState([]);
   const { id } = useParams();
-  const [albumId, setAlbumId] = useState(id);
+  const albumId = id;
   const [userId, setUserId] = useState();
+  const [title, setTitle] = useState();
   const [visibleCount, setVisibleCount] = useState(
-    JSON.parse(localStorage.getItem("visibleCountAlbum")) || 10
+    JSON.parse(localStorage.getItem("visibleCountAlbum")) || 4
   );
   useEffect(() => {
     async function checkAccess() {
-      if (userId) {
-        const response = await fetch(
-          `http://localhost:3000/albums/${albumId}?userId=${userId}`
-        );
-        const data = await response.json();
-
-        if (data.userId != userId) navigate("/access_denied");
-      }
+      const sessionId =
+        JSON.parse(sessionStorage.getItem("current-user"))?.id || false;
+      if (!sessionId) navigate("/login");
+      if (userId !== sessionId && userId !== undefined)
+        navigate("/access_denied");
+      const response = await fetch(
+        `http://localhost:3000/albums/${albumId}?userId=${userId}`
+      );
+      const data = await response.json();
+      if (data.userId != userId) navigate("/access_denied");
+      setTitle(data.title);
     }
-    checkAccess();
+    if (userId) checkAccess();
   }, [userId]);
   useEffect(() => {
     let hrefIn = href.split("/");
-    console.log(hrefIn[hrefIn.length - 2]);
     setUserId(hrefIn[hrefIn.length - 2]);
   }, [href]);
-  useEffect(() => {
-    const sessionId =
-      JSON.parse(sessionStorage.getItem("current-user"))?.id || false;
-    if (!sessionId) navigate("/login");
-    if (userId !== sessionId && userId !== undefined)
-      navigate("/access_denied");
-  }, [userId]);
+  useEffect(() => {}, [userId]);
   useEffect(() => {
     localStorage.setItem("visibleCountAlbum", JSON.stringify(visibleCount));
     return () => {
@@ -48,12 +45,9 @@ export default function Album() {
   }, [visibleCount]);
   useEffect(() => {
     async function getPhotos() {
-      console.log(albumId);
-      console.log(visibleCount);
-
       const response = await fetch(
         `http://localhost:3000/photos/?albumId=${albumId}&_start=${
-          visibleCount - 10
+          visibleCount - 4
         }&_end=${visibleCount}`
       );
       const data = await response.json();
@@ -65,9 +59,10 @@ export default function Album() {
     const response = await fetch(`http://localhost:3000/photos/${id}`, {
       method: "DELETE",
     });
-    if (response.ok)
+    if (response.ok) {
       setPhotos((prev) => prev.filter((photo) => photo.id != id));
-    else console.log("error:" + response.status);
+      setVisibleCount(visibleCount - 1);
+    }
   }
   async function changeTitle(id, newTitle) {
     let photo = photos.find((photo) => photo.id == id);
@@ -94,19 +89,13 @@ export default function Album() {
     if (response.ok) {
       const newPhoto = await response.json();
       setPhotos((prev) => [...prev, newPhoto]);
+      setVisibleCount(visibleCount + 1);
     }
   }
-  console.log(photos);
-
-  const visiblePhotos = photos.slice(0, visibleCount);
-  console.log("Total photos:", photos.length);
-  console.log("Visible count:", visibleCount);
-  console.log("Should show button:", visibleCount < photos.length);
-
   return (
     <>
       <NavBar></NavBar>
-      <h1>Album {albumId} component</h1>
+      <h1>{title}</h1>
       <form onSubmit={handleSubmit(addPhoto)}>
         <label htmlFor="url">Enter URL</label>
         <input
@@ -145,7 +134,7 @@ export default function Album() {
         >
           <button
             onClick={() => {
-              setVisibleCount(visibleCount + 10);
+              setVisibleCount(visibleCount + 4);
             }}
             style={{
               backgroundColor: "#a8dadc",

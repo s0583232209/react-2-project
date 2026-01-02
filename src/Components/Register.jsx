@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -12,19 +12,15 @@ export default function Register() {
 
   async function submitStep1(data) {
     if (data.password !== data.verifyPassword) {
-      console.log("Passwords do not match");
       return;
     }
 
     const response = await fetch(
       `http://localhost:3000/users?username=${data.userName}`
     );
-    console.log(response);
     const users = await response.json();
 
     if (users.length > 0) {
-      console.log(users);
-      console.log("Username exists");
       return;
     }
 
@@ -61,7 +57,7 @@ export default function Register() {
         bs: "N/A",
       },
     };
-    console.log(newUser);
+
 
     const response = await fetch("http://localhost:3000/users", {
       method: "POST",

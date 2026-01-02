@@ -14,11 +14,6 @@ import Login from "./Login";
 export default function Tasks(props) {
   const navigate = useNavigate();
   const { id } = useParams();
-  useEffect(() => {
-    if (!userID) navigate("/login", { state: "this should be the url" });
-    console.log(id == userID);
-    if (!(id == userID)) navigate("/access_denied");
-  }, []);
   const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
   const [sortConditionTasks, setSortConditonTasks] = useState(() => {
     let sortCondition = localStorage.getItem("sortConditionTasks");
@@ -27,9 +22,7 @@ export default function Tasks(props) {
     }
     return null;
   });
-
   const [tasksList, setTasksList] = useState(() => {
-    console.log(JSON.parse(localStorage.getItem("tasksList")));
     return JSON.parse(localStorage.getItem("tasksList")) || [];
   });
   const [newTask, setNewTask] = useState(false);
@@ -45,13 +38,31 @@ export default function Tasks(props) {
   });
   const [condition, setCondition] = useState(() => {
     let condition = localStorage.getItem("conditionTasks");
-    console.log(condition);
-
     if (condition) return (condition = JSON.parse(condition));
     return false;
   });
   useEffect(() => {
-    console.log(condition, "remove");
+    if (!userID) navigate("/login", { state: "this should be the url" });
+    if (!(id == userID)) navigate("/access_denied");
+  }, []);
+  useEffect(() => {
+    if (tasksList.length == 0) {
+      async function getTasks() {
+        if (!userID) return;
+        const response = await fetch(
+          `http://localhost:3000/tasks/?userId=${userID}`
+        );
+        if (!response.ok)
+          throw new Error(
+            "Error: response is not ok, status:  " + response.status
+          );
+        const data = await response.json();
+        setTasksList(data);
+      }
+      if (tasksList.length == 0) getTasks();
+    }
+  }, [userID]);
+  useEffect(() => {
     if (condition == false) localStorage.removeItem("conditionTasks");
     else localStorage.setItem("conditionTasks", JSON.stringify(condition));
     return () => {
@@ -59,11 +70,31 @@ export default function Tasks(props) {
     };
   }, [condition]);
   useEffect(() => {
-    console.log("in set check", tasksList.length);
+    localStorage.setItem("tasksList", JSON.stringify(tasksList));
+    return () => {
+      localStorage.removeItem("tasksList");
+    };
+  }, [tasksList]);
+  useEffect(() => {
+    localStorage.setItem("titleTasks", JSON.stringify(title));
+    return () => {
+      localStorage.removeItem("titleTasks");
+    };
+  }, [title]);
+  useEffect(() => {
+    localStorage.setItem("taskIDTasks", JSON.stringify(taskID));
+    return () => {
+      localStorage.removeItem("taskIDTasks");
+    };
+  }, [taskID]);
+  useEffect(() => {
+    if (condition)
+      localStorage.setItem("conditionTasks", JSON.stringify(condition));
+    else localStorage.removeItem("conditionTasks");
+  }, [condition]);
 
+  useEffect(() => {
     if (tasksList.length == 0) return;
-    console.log(condition, "switch on codition");
-
     switch (condition) {
       case "byId":
         setCheck(() => (task) => {
@@ -95,8 +126,6 @@ export default function Tasks(props) {
     return;
   }, [condition, title, taskID, tasksList]);
   useEffect(() => {
-    console.log(sortConditionTasks, "condition Task");
-
     if (sortConditionTasks)
       localStorage.setItem(
         "sortConditionTasks",
@@ -115,60 +144,10 @@ export default function Tasks(props) {
         sortList("false");
         break;
     }
-    return ()=>{
-      localStorage.removeItem('sortConditionTask')
-    }
+    return () => {
+      localStorage.removeItem("sortConditionTask");
+    };
   }, [sortConditionTasks]);
-  useEffect(() => {
-    localStorage.setItem("tasksList", JSON.stringify(tasksList));
-    return () => {
-      localStorage.removeItem("tasksList");
-    };
-  }, [tasksList]);
-
-  useEffect(() => {
-    localStorage.setItem("titleTasks", JSON.stringify(title));
-    return () => {
-      localStorage.removeItem("titleTasks");
-    };
-  }, [title]);
-  useEffect(() => {
-    localStorage.setItem("taskIDTasks", JSON.stringify(taskID));
-    return () => {
-      localStorage.removeItem("taskIDTasks");
-    };
-  }, [taskID]);
-  useEffect(() => {
-    if (condition)
-      localStorage.setItem("conditionTasks", JSON.stringify(condition));
-    // else localStorage.removeItem("conditionTasks");
-  }, [condition]);
-  useEffect(() => {
-    console.log(tasksList);
-
-    if (tasksList.length == 0) {
-      async function getTasks() {
-        console.log("in function");
-        console.log(userID);
-
-        if (!userID) return;
-        const response = await fetch(
-          `http://localhost:3000/tasks/?userId=${userID}`
-        );
-        console.log(response);
-
-        if (!response.ok)
-          throw new Error(
-            "Error: response is not ok, status:  " + response.status
-          );
-        const data = await response.json();
-        setTasksList(data);
-        console.log("after set");
-        console.log(await data);
-      }
-      if (tasksList.length == 0) getTasks();
-    }
-  }, [userID]);
   async function deleteTask(id) {
     const response = await fetch(`http://localhost:3000/tasks/${id}`, {
       method: "DELETE",
@@ -285,15 +264,11 @@ export default function Tasks(props) {
         >
           Uncompleted Only
         </button>
-        
-        <button onClick={back}>
-          Back To All Tasks
-        </button>
 
-        <button onClick={() => setNewTask(!newTask)}>
-          Add New Task
-        </button>
-        
+        <button onClick={back}>Back To All Tasks</button>
+
+        <button onClick={() => setNewTask(!newTask)}>Add New Task</button>
+
         <button
           onClick={() => {
             setCondition("byTitle");

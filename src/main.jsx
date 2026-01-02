@@ -42,7 +42,6 @@ createRoot(document.getElementById("root")).render(
       </Route>
       <Route path="/tasks/:id/" element={<Tasks />}>
       
-      {/* <Route path="/tasks" element={<Outlet></Outlet>}> */}
         <Route path=":id" element={<Task />} />
       </Route>
       <Route path="/access_denied" element={<AccessDenied />}></Route>

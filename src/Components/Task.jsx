@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 export default function Task(props) {
   const navigate = useNavigate();
   if (!sessionStorage.getItem("current-user"))
-    navigate("/login", { state: "this should be the url" });
+    navigate("/login");
   const [editing, setEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(props.title);
 

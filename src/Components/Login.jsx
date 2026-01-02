@@ -11,12 +11,11 @@ export default function Login() {
     if (user.length <= 0) return console.log("User does not exist", user);
     if (user[0].website != data.password)
       return console.log("Wrong password", user);
-
     sessionStorage.setItem("current-user", JSON.stringify(user[0]));
     navigation("/");
   }
-  sessionStorage.clear()
-localStorage.clear()
+  sessionStorage.clear();
+  localStorage.clear();
   return (
     <form onSubmit={handleSubmit(login)}>
       <label htmlFor="userName">User Name</label>

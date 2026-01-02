@@ -11,7 +11,6 @@ export function NavBar() {
       navigate("/login");
     }
   }, [currentUser, navigate]);
-  if (!currentUser) return null;
   function logOut() {
     localStorage.clear()
     sessionStorage.removeItem("current-user");

@@ -170,6 +170,7 @@ nav a.active {
 .task input[type="checkbox"] {
   transform: scale(1.3);
   margin-right: 0.5rem;
+  width: 30px;
 }
 
 /* ================= Responsive ================= */

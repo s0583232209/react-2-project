@@ -9,7 +9,6 @@ export default function Register() {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
   const [newUser, setNewUser] = useState(null);
-
   async function submitStep1(data) {
     if (data.password !== data.verifyPassword) {
       return;
@@ -19,7 +18,6 @@ export default function Register() {
       `http://localhost:3000/users?username=${data.userName}`
     );
     const users = await response.json();
-
     if (users.length > 0) {
       return;
     }
@@ -96,6 +94,7 @@ export default function Register() {
             id="verifyPassword"
             {...register("verifyPassword")}
           />
+       
           <button>Next</button>
         </form>
       )}

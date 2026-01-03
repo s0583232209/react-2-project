@@ -20,28 +20,22 @@ import {
   NavLink,
 } from "react-router-dom";
 let str = "";
-for (let i = 1; i < 112; i++) {
-  str += `{"albumId":${1+i%9},"id":"${i+900}", "path":"/pictures/landscape${i}.jpg","title":"photos number ${i}"},\n`;
-}
+
 console.log(str);
 
 createRoot(document.getElementById("root")).render(
   <Router>
-    
     <Routes>
+
       <Route path="/login" element={<Login />}></Route>
-      <Route path="/register" element={<Register />}>
-      </Route>
+      <Route path="/register" element={<Register />}></Route>
       <Route path="/" element={<Home />}></Route>
-      <Route path="/albums/:id/" element={<Albums />}>
-       
-      </Route>
-       <Route path="/albums/:id/:id" element={<Album />}></Route>
-       <Route path="/posts/:id/" element={<Posts />}>
+      <Route path="/albums/:id/" element={<Albums />}></Route>
+      <Route path="/albums/:id/:id" element={<Album />}></Route>
+      <Route path="/posts/:id/" element={<Posts />}>
         <Route path=":id" element={<Post />}></Route>
       </Route>
       <Route path="/tasks/:id/" element={<Tasks />}>
-      
         <Route path=":id" element={<Task />} />
       </Route>
       <Route path="/access_denied" element={<AccessDenied />}></Route>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { NavBar } from "./NavBar";
+import  NavBar  from "./NavBar";
 export default function Home() {
   const navigate = useNavigate();
   const currentUser =

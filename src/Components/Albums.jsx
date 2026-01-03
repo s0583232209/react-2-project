@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { NavBar } from "./NavBar";
+import NavBar from "./NavBar";
 import AlbumLink from "./AlbumLink";
 
 export default function Albums(props) {
@@ -54,6 +54,8 @@ export default function Albums(props) {
       const response = await fetch(
         `http://localhost:3000/albums/?userId=${userID}`
       );
+      console.log(response);
+
       const data = await response.json();
       setUsersAlbums(data);
     }
@@ -77,10 +79,12 @@ export default function Albums(props) {
     const response = await fetch(`http://localhost:3000/albums/${id}`, {
       method: "DELETE",
     });
+
     if (response.ok) {
       setUsersAlbums((prev) => prev.filter((album) => album.id != id));
     } else console.log("error, statue:" + response.status);
   }
+
   return (
     <>
       <NavBar></NavBar>

@@ -574,24 +574,9 @@ export default function Tasks(props) {
         <option value="true">Completed First</option>
         <option value="false">Uncompleted First</option>
       </select>
-      <button
-        id="byTitle"
-        onClick={() => {
-          setCondition("byTitle");
-          setCheck(() => (task) => {
-            return task.title.toLowerCase().includes(title.toLowerCase());
-          });
-          navigate(`?title=${title}`);
-        }}
-      >
-        by title
-      </button>
-      <input
-        type="text"
-        onChange={(e) => setTitle(e.target.value)}
-        value={title}
-      ></input>
-      <button
+   
+      
+      <button 
         onClick={() => {
           setCondition("completedOnly");
           setCheck(() => (task) => {
@@ -613,30 +598,7 @@ export default function Tasks(props) {
       >
         Uncompleted only
       </button>
-      <button
-        id="byID"
-        onClick={() => {
-          setCondition("byId");
-          setCheck(() => (task) => {
-            return task.id == taskID;
-          });
-          navigate(`?id=${taskID}`);
-        }}
-      >
-        by ID
-      </button>
-
-        <button
-          onClick={() => {
-            setCondition("uncompletedOnly");
-            setCheck(() => (task) => {
-              return !task.completed;
-            });
-            navigate(`?completed=false`);
-          }}
-        >
-          Uncompleted Only
-        </button>
+   
 
         <button onClick={back}>Back To All Tasks</button>
 

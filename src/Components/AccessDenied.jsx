@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import NavBar from "./NavBar";
 export function AccessDenied() {
   const navigate = useNavigate();
   return (

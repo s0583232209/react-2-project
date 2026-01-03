@@ -8,7 +8,7 @@ import {
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Task from "./Task";
-import { NavBar } from "./NavBar";
+import  NavBar  from "./NavBar";
 import Login from "./Login";
 
 export default function Tasks(props) {

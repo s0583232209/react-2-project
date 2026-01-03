@@ -2,20 +2,26 @@ import { useHref, useNavigate, useParams } from "react-router-dom";
 import Photo from "./Photo";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { NavBar } from "./NavBar";
+import NavBar from "./NavBar";
 import "./Album.css";
 export default function Album() {
   const navigate = useNavigate();
   const href = useHref();
   const { register, handleSubmit } = useForm();
-  const [photos, setPhotos] = useState([]);
+  const [photos, setPhotos] = useState(() => {
+    if (localStorage.getItem("photos"))
+      return JSON.parse(localStorage.getItem("photos"));
+    else return [];
+  });
   const { id } = useParams();
   const albumId = id;
   const [userId, setUserId] = useState();
   const [title, setTitle] = useState();
-  const [visibleCount, setVisibleCount] = useState(
-    JSON.parse(localStorage.getItem("visibleCountAlbum")) || 4
-  );
+  const [visibleCount, setVisibleCount] = useState(() => {
+    if (localStorage.getItem("visibleCountAlbum"))
+      return JSON.parse(localStorage.getItem("visibleCountAlbum"));
+    else return 4;
+  });
   useEffect(() => {
     async function checkAccess() {
       const sessionId =
@@ -53,15 +59,20 @@ export default function Album() {
       const data = await response.json();
       setPhotos((prev) => [...prev, ...data]);
     }
-    getPhotos();
+    if (photos.length < visibleCount) getPhotos();
   }, [id, visibleCount]);
+  useEffect(() => {
+    localStorage.setItem("photos", JSON.stringify(photos));
+    return () => {
+      localStorage.removeItem("photos");
+    };
+  }, [photos]);
   async function deletePhoto(id) {
     const response = await fetch(`http://localhost:3000/photos/${id}`, {
       method: "DELETE",
     });
     if (response.ok) {
       setPhotos((prev) => prev.filter((photo) => photo.id != id));
-      setVisibleCount(visibleCount - 1);
     }
   }
   async function changeTitle(id, newTitle) {
@@ -89,7 +100,6 @@ export default function Album() {
     if (response.ok) {
       const newPhoto = await response.json();
       setPhotos((prev) => [...prev, newPhoto]);
-      setVisibleCount(visibleCount + 1);
     }
   }
   return (

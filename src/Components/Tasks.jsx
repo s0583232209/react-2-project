@@ -332,7 +332,7 @@ export default function Tasks(props) {
           placeholder="Enter ID"
           onChange={(e) => setTaskID(e.target.value)}
         />
-      </div>
+     
       {newTask ? (
         <>
           <form onSubmit={handleSubmit(addNewTask)}>

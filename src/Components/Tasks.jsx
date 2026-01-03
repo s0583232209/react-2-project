@@ -358,7 +358,8 @@ import NavBar from "./NavBar";
 import Login from "./Login";
 
 export default function Tasks(props) {
-  const [searchParams] = useSearchParams();
+  
+  
   const navigate = useNavigate();
   const { id } = useParams();
   const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;

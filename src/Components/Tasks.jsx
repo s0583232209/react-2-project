@@ -1,16 +1,10 @@
-import {
-  Outlet,
-  Link,
-  useNavigate,
-  useParams,
-  useLocation,
+import { Outlet, Link, useNavigate, useParams, useLocation,
 } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Task from "./Task";
 import { NavBar } from "./NavBar";
 import Login from "./Login";
-
 export default function Tasks(props) {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -20,18 +14,9 @@ export default function Tasks(props) {
     if (!(id == userID)) navigate("/access_denied");
   }, []);
   const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
-  const [sortConditionTasks, setSortConditonTasks] = useState(() => {
-    let sortCondition = localStorage.getItem("sortConditionTasks");
-    if (sortCondition) {
-      return (sortCondition = JSON.parse(sortCondition));
-    }
-    return null;
-  });
-
-  const [tasksList, setTasksList] = useState(() => {
-    console.log(JSON.parse(localStorage.getItem("tasksList")));
-    return JSON.parse(localStorage.getItem("tasksList")) || [];
-  });
+  const [tasksList, setTasksList] = useState(
+    JSON.parse(localStorage.getItem("tasksList")) || []
+  );
   const [newTask, setNewTask] = useState(false);
   const { register, handleSubmit, reset } = useForm();
   const [title, setTitle] = useState(
@@ -45,25 +30,21 @@ export default function Tasks(props) {
   });
   const [condition, setCondition] = useState(() => {
     let condition = localStorage.getItem("conditionTasks");
-    console.log(condition);
-
-    if (condition) return (condition = JSON.parse(condition));
-    return false;
+    if (condition != "undefined") return (condition = JSON.parse(condition));
+    return null;
   });
   useEffect(() => {
-    console.log(condition, "remove");
-    if (condition == false) localStorage.removeItem("conditionTasks");
-    else localStorage.setItem("conditionTasks", JSON.stringify(condition));
+    if (condition == null) localStorage.removeItem("conditionTasks");
     return () => {
       localStorage.removeItem("conditionTasks");
     };
   }, [condition]);
   useEffect(() => {
-    console.log("in set check", tasksList.length);
-
+    console.log('in set check',tasksList.length);
+    
     if (tasksList.length == 0) return;
-    console.log(condition, "switch on codition");
-
+    console.log(condition);
+    
     switch (condition) {
       case "byId":
         setCheck(() => (task) => {
@@ -85,7 +66,6 @@ export default function Tasks(props) {
           return task.title == title;
         });
         break;
-
       default:
         setCheck(() => () => {
           return true;
@@ -93,33 +73,11 @@ export default function Tasks(props) {
         break;
     }
     return;
-  }, [condition, title, taskID, tasksList]);
+  }, [condition, title, taskID,tasksList]);
   useEffect(() => {
-    console.log(sortConditionTasks, "condition Task");
-
-    if (sortConditionTasks)
-      localStorage.setItem(
-        "sortConditionTasks",
-        JSON.stringify(sortConditionTasks)
-      );
-    switch (sortConditionTasks) {
-      case "title":
-        sortList("title");
-        break;
-      case "id":
-        sortList("id");
-      case "true":
-        sortList("true");
-        break;
-      case "false":
-        sortList("false");
-        break;
-    }
-  }, [sortConditionTasks]);
-  useEffect(() => {
-    localStorage.setItem("tasksList", JSON.stringify(tasksList));
+    localStorage.setItem("tasksListTasks", JSON.stringify(tasksList));
     return () => {
-      localStorage.removeItem("tasksList");
+      localStorage.removeItem("tasksListTasks");
     };
   }, [tasksList]);
 
@@ -132,16 +90,16 @@ export default function Tasks(props) {
   useEffect(() => {
     localStorage.setItem("taskIDTasks", JSON.stringify(taskID));
     return () => {
-      localStorage.removeItem("taskIDTasks");
-    };
+      localStorage.removeItem("taskIDTasks")
+    }
   }, [taskID]);
   useEffect(() => {
     if (condition)
       localStorage.setItem("conditionTasks", JSON.stringify(condition));
-    // else localStorage.removeItem("conditionTasks");
+    else localStorage.removeItem("conditionTasks");
   }, [condition]);
   useEffect(() => {
-    console.log(tasksList);
+    console.log(tasksList.length);
 
     if (tasksList.length == 0) {
       async function getTasks() {
@@ -217,10 +175,9 @@ export default function Tasks(props) {
       return;
     }
     if (sortBy == "id")
-      tasksList.sort(
-        (a, b) => convertIdToInt(a[sortBy]) - convertIdToInt(b[sortBy])
-      );
-    else tasksList.sort((a, b) => a[sortBy].localeCompare(b[sortBy]));
+      tasksList.sort((a, b) => convertIdToInt(a[sortBy]) - convertIdToInt(b[sortBy]));
+    else
+      tasksList.sort((a, b) => a[sortBy].localeCompare(b[sortBy]));
     setTasksList([...tasksList]);
     navigate(`?sortBy=${sortBy}`);
   }
@@ -243,108 +200,96 @@ export default function Tasks(props) {
     navigate(`/tasks/${userID}`);
   }
   function removeAllConditions() {
-    setCondition(false);
+    setCondition(null);
   }
-
   return (
     <>
-      <NavBar></NavBar>
+    <NavBar></NavBar>
       <h1>Tasks</h1>
-      <div className="filters">
-        <select onChange={(e) => setSortConditonTasks(e.target.value)}>
-          <option value="sort">Sort By</option>
-          <option value="title">Title</option>
-          <option value="id">ID</option>
-          <option value="true">Completed First</option>
-          <option value="false">Uncompleted First</option>
-        </select>
+      <select onChange={(e) => sortList(e.target.value)}>
+        <option value="sort">Sort By</option>
+        <option value="title">Title</option>
+        <option value="id">ID</option>
+        <option value="true">Completed First</option>
+        <option value="false">Uncompleted First</option>
+      </select>
+      <button
+        id="byTitle"
+        onClick={() => {
+          setCondition("byTitle");
+          setCheck(() => (task) => {
+            return task.title.toLowerCase().includes(title.toLowerCase());
+          });
+          navigate(`?title=${title}`);
+        }}
+      >
+        by title
+      </button>
+      <input
+        type="text"
+        onChange={(e) => setTitle(e.target.value)}
+        value={title}
+      ></input>
+      <button
+        onClick={() => {
+          setCondition("completedOnly");
+          setCheck(() => (task) => {
+            return task.completed;
+          });
+          navigate(`?completed=true`);
+        }}
+      >
+        only completed
+      </button>
+      <button
+        onClick={() => {
+          setCondition("uncompletedOnly");
+          setCheck(() => (task) => {
+            return !task.completed;
+          });
+          navigate(`?completed=false`);
+        }}
+      >
+        Uncompleted only
+      </button>
+      <button
+        id="byID"
+        onClick={() => {
+          setCondition("byId");
+          setCheck(() => (task) => {
+            return task.id == taskID;
+          });
+          navigate(`?id=${taskID}`);
+        }}
+      >
+        by ID
+      </button>
 
-        <button
-          onClick={() => {
-            setCondition("completedOnly");
-            setCheck(() => (task) => {
-              return task.completed;
-            });
-            navigate(`?completed=true`);
-          }}
-        >
-          Only Completed
-        </button>
-
-        <button
-          onClick={() => {
-            setCondition("uncompletedOnly");
-            setCheck(() => (task) => {
-              return !task.completed;
-            });
-            navigate(`?completed=false`);
-          }}
-        >
-          Uncompleted Only
-        </button>
-        
-        <button onClick={back}>
-          Back To All Tasks
-        </button>
-
-        <button onClick={() => setNewTask(!newTask)}>
-          Add New Task
-        </button>
-        
-        <button
-          onClick={() => {
-            setCondition("byTitle");
-            setCheck(() => (task) => {
-              return task.title == title;
-            });
-            navigate(`?title=${title}`);
-          }}
-        >
-          By Title
-        </button>
-        <input
-          type="text"
-          placeholder="Enter title"
-          onChange={(e) => setTitle(e.target.value)}
-          value={title}
-        />
-
-        <button
-          onClick={() => {
-            setCondition("byId");
-            setCheck(() => (task) => {
-              return task.id == taskID;
-            });
-            navigate(`?id=${taskID}`);
-          }}
-        >
-          By ID
-        </button>
-        <input
-          type="text"
-          placeholder="Enter ID"
-          onChange={(e) => setTaskID(e.target.value)}
-        />
-      </div>
+      <input type="text" onChange={(e) => setTaskID(e.target.value)}></input>
+      <button onClick={back}>Back To All Tasks</button>
+      <button className="addNewTask" onClick={() => setNewTask(!newTask)}>
+        Add New Task
+      </button>
       {newTask ? (
-        <form onSubmit={handleSubmit(addNewTask)}>
-          <label htmlFor="title">Title</label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            placeholder="Enter task title"
-            {...register("title")}
-          />
-          <label htmlFor="completed">Completed?</label>
-          <input
-            type="checkbox"
-            id="completed"
-            name="completed"
-            {...register("completed")}
-          />
-          <button>Add</button>
-        </form>
+        <>
+          <form onSubmit={handleSubmit(addNewTask)}>
+            <label htmlFor="title">Title</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              {...register("title")}
+            ></input>
+            <input
+              type="checkbox"
+              id="completed"
+              name="completed"
+              {...register("completed")}
+            ></input>
+            <label htmlFor="completed">Completed?</label>
+            <button>Add</button>
+          </form>
+        </>
       ) : null}
       {tasksList.length > 0 ? (
         tasksList.map((task) =>
@@ -362,6 +307,7 @@ export default function Tasks(props) {
       ) : (
         <p>No Tasks</p>
       )}
+
       <Outlet></Outlet>
     </>
   );

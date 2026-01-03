@@ -42,7 +42,7 @@ export default function Task(props) {
       ) : (
         <>
           <h3>ID: {props.id}</h3>
-          <h2>{props.title}</h2>
+          <h2 className={`task-title ${props.completed ? "task-title-completed" : ""}`}>{props.title}</h2>
 
           <div>
             <input
@@ -56,7 +56,7 @@ export default function Task(props) {
               }
               checked={props.completed}
             />
-            <label htmlFor={`complete-${props.id}`}>Complete!</label>
+            <label htmlFor={`complete-${props.id}`}>Complete</label>
           </div>
 
           <button onClick={() => props.onDelete(props.id)}>Delete</button>

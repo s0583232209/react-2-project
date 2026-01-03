@@ -356,7 +356,6 @@ import { useForm } from "react-hook-form";
 import Task from "./Task";
 import NavBar from "./NavBar";
 import Login from "./Login";
-
 export default function Tasks(props) {
   const [searchParams] = useSearchParams();
 
@@ -460,7 +459,6 @@ export default function Tasks(props) {
           return task.title == title;
         });
         break;
-
       default:
         setCheck(() => () => {
           return true;
@@ -468,7 +466,7 @@ export default function Tasks(props) {
         break;
     }
     return;
-  }, [condition, title, taskID, tasksList]);
+  }, [condition, title, taskID,tasksList]);
   useEffect(() => {
     switch (sortConditionTasks) {
       case "title":
@@ -538,10 +536,9 @@ export default function Tasks(props) {
       return;
     }
     if (sortBy == "id")
-      tasksList.sort(
-        (a, b) => convertIdToInt(a[sortBy]) - convertIdToInt(b[sortBy])
-      );
-    else tasksList.sort((a, b) => a[sortBy].localeCompare(b[sortBy]));
+      tasksList.sort((a, b) => convertIdToInt(a[sortBy]) - convertIdToInt(b[sortBy]));
+    else
+      tasksList.sort((a, b) => a[sortBy].localeCompare(b[sortBy]));
     setTasksList([...tasksList]);
     navigate(`?sortBy=${sortBy}`);
   }
@@ -564,33 +561,70 @@ export default function Tasks(props) {
     navigate(`/tasks/${userID}`);
   }
   function removeAllConditions() {
-    setCondition(false);
+    setCondition(null);
   }
-
   return (
     <>
-      <NavBar></NavBar>
+    <NavBar></NavBar>
       <h1>Tasks</h1>
-      <div className="filters">
-        <select onChange={(e) => setSortConditonTasks(e.target.value)}>
-          <option value="sort">Sort By</option>
-          <option value="title">Title</option>
-          <option value="id">ID</option>
-          <option value="true">Completed First</option>
-          <option value="false">Uncompleted First</option>
-        </select>
-
-        <button
-          onClick={() => {
-            setCondition("completedOnly");
-            setCheck(() => (task) => {
-              return task.completed;
-            });
-            navigate(`?completed=true`);
-          }}
-        >
-          Only Completed
-        </button>
+      <select onChange={(e) => sortList(e.target.value)}>
+        <option value="sort">Sort By</option>
+        <option value="title">Title</option>
+        <option value="id">ID</option>
+        <option value="true">Completed First</option>
+        <option value="false">Uncompleted First</option>
+      </select>
+      <button
+        id="byTitle"
+        onClick={() => {
+          setCondition("byTitle");
+          setCheck(() => (task) => {
+            return task.title.toLowerCase().includes(title.toLowerCase());
+          });
+          navigate(`?title=${title}`);
+        }}
+      >
+        by title
+      </button>
+      <input
+        type="text"
+        onChange={(e) => setTitle(e.target.value)}
+        value={title}
+      ></input>
+      <button
+        onClick={() => {
+          setCondition("completedOnly");
+          setCheck(() => (task) => {
+            return task.completed;
+          });
+          navigate(`?completed=true`);
+        }}
+      >
+        only completed
+      </button>
+      <button
+        onClick={() => {
+          setCondition("uncompletedOnly");
+          setCheck(() => (task) => {
+            return !task.completed;
+          });
+          navigate(`?completed=false`);
+        }}
+      >
+        Uncompleted only
+      </button>
+      <button
+        id="byID"
+        onClick={() => {
+          setCondition("byId");
+          setCheck(() => (task) => {
+            return task.id == taskID;
+          });
+          navigate(`?id=${taskID}`);
+        }}
+      >
+        by ID
+      </button>
 
         <button
           onClick={() => {
@@ -642,26 +676,27 @@ export default function Tasks(props) {
           placeholder="Enter ID"
           onChange={(e) => setTaskID(e.target.value)}
         />
-      </div>
+     
       {newTask ? (
-        <form onSubmit={handleSubmit(addNewTask)}>
-          <label htmlFor="title">Title</label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            placeholder="Enter task title"
-            {...register("title")}
-          />
-          <label htmlFor="completed">Completed?</label>
-          <input
-            type="checkbox"
-            id="completed"
-            name="completed"
-            {...register("completed")}
-          />
-          <button>Add</button>
-        </form>
+        <>
+          <form onSubmit={handleSubmit(addNewTask)}>
+            <label htmlFor="title">Title</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              {...register("title")}
+            ></input>
+            <input
+              type="checkbox"
+              id="completed"
+              name="completed"
+              {...register("completed")}
+            ></input>
+            <label htmlFor="completed">Completed?</label>
+            <button>Add</button>
+          </form>
+        </>
       ) : null}
       {tasksList.length > 0 ? (
         tasksList.map((task) =>
@@ -679,6 +714,7 @@ export default function Tasks(props) {
       ) : (
         <p>No Tasks</p>
       )}
+
       <Outlet></Outlet>
     </>
   );

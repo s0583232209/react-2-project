@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import "./NavBar.css";
 
-export function NavBar() {
+export default function NavBar() {
   const navigate = useNavigate();
   const currentUser =
     JSON.parse(sessionStorage.getItem("current-user")) || null;
@@ -11,8 +11,8 @@ export function NavBar() {
       navigate("/login");
     }
   }, [currentUser, navigate]);
-  if (!currentUser) return null;
   function logOut() {
+    localStorage.clear();
     sessionStorage.removeItem("current-user");
     navigate("/login");
   }

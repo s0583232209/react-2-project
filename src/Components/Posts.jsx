@@ -2,8 +2,7 @@ import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Post from "./Post";
-import { NavBar } from "./NavBar";
-
+import  NavBar  from "./NavBar";
 export default function Posts() {
     const navigate = useNavigate();
     const currentUser = JSON.parse(sessionStorage.getItem("current-user")) || {};

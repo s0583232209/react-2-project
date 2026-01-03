@@ -1,28 +1,24 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 export default function Register() {
+  sessionStorage.clear();
+  localStorage.clear();
   const { register, handleSubmit } = useForm();
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
   const [newUser, setNewUser] = useState(null);
-
   async function submitStep1(data) {
     if (data.password !== data.verifyPassword) {
-      console.log("Passwords do not match");
       return;
     }
 
     const response = await fetch(
       `http://localhost:3000/users?username=${data.userName}`
     );
-    console.log(response)
     const users = await response.json();
-
     if (users.length > 0) {
-      console.log(users);
-      console.log("Username exists");
       return;
     }
 
@@ -59,7 +55,7 @@ export default function Register() {
         bs: "N/A",
       },
     };
-    console.log(newUser);
+
 
     const response = await fetch("http://localhost:3000/users", {
       method: "POST",
@@ -78,11 +74,27 @@ export default function Register() {
       {step === 1 && (
         <form onSubmit={handleSubmit(submitStep1)}>
           <label htmlFor="userName">User Name</label>
-          <input type="text" name="userName" id="userName"{...register("userName")} />
+          <input
+            type="text"
+            name="userName"
+            id="userName"
+            {...register("userName")}
+          />
           <label htmlFor="password">Password</label>
-          <input type="password" name="password" id="password"{...register("password")} />
+          <input
+            type="password"
+            name="password"
+            id="password"
+            {...register("password")}
+          />
           <label htmlFor="verifyPassword">Verify Password</label>
-          <input type="password" name="verifyPassword" id="verifyPassword"{...register("verifyPassword")} />
+          <input
+            type="password"
+            name="verifyPassword"
+            id="verifyPassword"
+            {...register("verifyPassword")}
+          />
+       
           <button>Next</button>
         </form>
       )}
@@ -90,19 +102,28 @@ export default function Register() {
       {step === 2 && (
         <form onSubmit={handleSubmit(submitStep2)}>
           <label htmlFor="name">Name</label>
-          <input type="text" name="name" id="name"{...register("name")} />
+          <input type="text" name="name" id="name" {...register("name")} />
           <label htmlFor="email">Email</label>
-          <input type="email" name="email" id="email"{...register("email")} />
+          <input type="email" name="email" id="email" {...register("email")} />
           <label htmlFor="street">Street</label>
-          <input type="text" name="street" id="street"{...register("street")} />
+          <input
+            type="text"
+            name="street"
+            id="street"
+            {...register("street")}
+          />
           <label htmlFor="city">City</label>
-          <input type="text" name="city" id="city"{...register("city")} />
+          <input type="text" name="city" id="city" {...register("city")} />
           <label htmlFor="phoneNumber">Phone Number</label>
-          <input type="text" name="phoneNumber" id="phoneNumber"{...register("phoneNumber")} />
+          <input
+            type="text"
+            name="phoneNumber"
+            id="phoneNumber"
+            {...register("phoneNumber")}
+          />
           <button>Register</button>
         </form>
       )}
     </>
   );
 }
-

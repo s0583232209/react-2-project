@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { NavBar } from "./NavBar";
+import NavBar from "./NavBar";
 import AlbumLink from "./AlbumLink";
 
 export default function Albums(props) {
@@ -8,7 +8,6 @@ export default function Albums(props) {
   const { id } = useParams();
   useEffect(() => {
     if (!userID) navigate("/login", { state: "this should be the url" });
-    console.log(id == userID);
     if (!(id == userID)) navigate("/access_denied");
   }, []);
   const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
@@ -30,19 +29,17 @@ export default function Albums(props) {
   });
   useEffect(() => {
     localStorage.setItem("searchIDAlbums", JSON.stringify(searchID));
-    return ()=>{
-      localStorage.removeItem("searchIDAlbums")
-    }
+    return () => {
+      localStorage.removeItem("searchIDAlbums");
+    };
   }, [searchID]);
   useEffect(() => {
     localStorage.setItem("searchTitleAlbums", JSON.stringify(searchTitle));
-    return ()=>{
-      localStorage.removeItem("searchTitleAlbums")
-    }
+    return () => {
+      localStorage.removeItem("searchTitleAlbums");
+    };
   }, [searchTitle]);
   useEffect(() => {
-    console.log("in effect of check");
-
     if (searchID != "")
       setCheck(() => (album) => {
         return album.id == searchID;
@@ -54,16 +51,15 @@ export default function Albums(props) {
   }, []);
   useEffect(() => {
     async function getAlbums() {
-      console.log(userID);
-      if (userID) {
-        const response = await fetch(
-          `http://localhost:3000/albums/?userId=${userID}`
-        );
-        const data = await response.json();
-        setUsersAlbums(data);
-      }
+      const response = await fetch(
+        `http://localhost:3000/albums/?userId=${userID}`
+      );
+      console.log(response);
+
+      const data = await response.json();
+      setUsersAlbums(data);
     }
-    getAlbums();
+    if (userID) getAlbums();
   }, []);
   async function addNewAlbum() {
     const response = await fetch(`http://localhost:3000/albums`, {
@@ -83,73 +79,74 @@ export default function Albums(props) {
     const response = await fetch(`http://localhost:3000/albums/${id}`, {
       method: "DELETE",
     });
+
     if (response.ok) {
       setUsersAlbums((prev) => prev.filter((album) => album.id != id));
     } else console.log("error, statue:" + response.status);
   }
+
   return (
     <>
-     <NavBar></NavBar>
-     <h1>Albums</h1>
-     <div className="filters">
-       <button onClick={addNewAlbum}>Add Album</button>
-       <input
-         type="text"
-         placeholder="Enter album title"
-         value={newAlbumsTitle}
-         onChange={(e) => setNewAlbumsTitle(e.target.value)}
-       />
-       <button
-         onClick={() => {
-           navigate(`?title=${searchTitle}`);
-           setCheck(() => (album) => {
-             return album.title == searchTitle;
-           });
-         }}
-       >
-         By Title
-       </button>
-       <input
-         type="text"
-         placeholder="Enter title"
-         value={searchTitle}
-         onChange={(e) => setSearchTitle(e.target.value)}
-       />
-       <button
-         onClick={() => {
-           console.log(searchID);
-           navigate(`?id=${searchID}`);
-           setCheck(() => (album) => {
-             return album.id == searchID;
-           });
-         }}
-       >
-         By ID
-       </button>
-       <input 
-         type="text" 
-         placeholder="Enter ID"
-         value={searchID}
-         onChange={(e) => setSearchID(e.target.value)}
-       />
-     </div>
-     {!albumView && useresAlbums.length > 0 ? (
-       useresAlbums.map((album) =>
-         check(album) ? (
-           <AlbumLink
-             title={album.title}
-             changeStateAlbumView={setAlbumView}
-             userId={userID}
-             key={album.id}
-             id={album.id}
-             deleteAlbum={deleteAlbum}
-           ></AlbumLink>
-         ) : null
-       )
-     ) : !albumView ? (
-       <p>No Albums</p>
-     ) : null}
-     <Outlet />
+      <NavBar></NavBar>
+      <h1>Albums</h1>
+      <div className="filters">
+        <button onClick={addNewAlbum}>Add Album</button>
+        <input
+          type="text"
+          placeholder="Enter album title"
+          value={newAlbumsTitle}
+          onChange={(e) => setNewAlbumsTitle(e.target.value)}
+        />
+        <button
+          onClick={() => {
+            navigate(`?title=${searchTitle}`);
+            setCheck(() => (album) => {
+              return album.title == searchTitle;
+            });
+          }}
+        >
+          By Title
+        </button>
+        <input
+          type="text"
+          placeholder="Enter title"
+          value={searchTitle}
+          onChange={(e) => setSearchTitle(e.target.value)}
+        />
+        <button
+          onClick={() => {
+            navigate(`?id=${searchID}`);
+            setCheck(() => (album) => {
+              return album.id == searchID;
+            });
+          }}
+        >
+          By ID
+        </button>
+        <input
+          type="text"
+          placeholder="Enter ID"
+          value={searchID}
+          onChange={(e) => setSearchID(e.target.value)}
+        />
+      </div>
+      {!albumView && useresAlbums.length > 0 ? (
+        useresAlbums.map((album) =>
+          check(album) ? (
+            <AlbumLink
+              title={album.title}
+              changeStateAlbumView={setAlbumView}
+              userId={userID}
+              key={album.id}
+              id={album.id}
+              deleteAlbum={deleteAlbum}
+            ></AlbumLink>
+          ) : null
+        )
+      ) : !albumView ? (
+        <p>You Have No Albums</p>
+      ) : null}
+      <Outlet />
     </>
   );
 }

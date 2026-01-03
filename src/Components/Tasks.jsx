@@ -3,20 +3,22 @@ import { Outlet, Link, useNavigate, useParams, useLocation,
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Task from "./Task";
-import { NavBar } from "./NavBar";
+import  NavBar  from "./NavBar";
 import Login from "./Login";
 export default function Tasks(props) {
   const navigate = useNavigate();
   const { id } = useParams();
-  useEffect(() => {
-    if (!userID) navigate("/login", { state: "this should be the url" });
-    console.log(id == userID);
-    if (!(id == userID)) navigate("/access_denied");
-  }, []);
   const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
-  const [tasksList, setTasksList] = useState(
-    JSON.parse(localStorage.getItem("tasksList")) || []
-  );
+  const [sortConditionTasks, setSortConditonTasks] = useState(() => {
+    let sortCondition = localStorage.getItem("sortConditionTasks");
+    if (sortCondition) {
+      return (sortCondition = JSON.parse(sortCondition));
+    }
+    return null;
+  });
+  const [tasksList, setTasksList] = useState(() => {
+    return JSON.parse(localStorage.getItem("tasksList")) || [];
+  });
   const [newTask, setNewTask] = useState(false);
   const { register, handleSubmit, reset } = useForm();
   const [title, setTitle] = useState(
@@ -30,21 +32,63 @@ export default function Tasks(props) {
   });
   const [condition, setCondition] = useState(() => {
     let condition = localStorage.getItem("conditionTasks");
-    if (condition != "undefined") return (condition = JSON.parse(condition));
-    return null;
+    if (condition) return (condition = JSON.parse(condition));
+    return false;
   });
   useEffect(() => {
-    if (condition == null) localStorage.removeItem("conditionTasks");
+    if (!userID) navigate("/login", { state: "this should be the url" });
+    if (!(id == userID)) navigate("/access_denied");
+  }, []);
+  useEffect(() => {
+    if (tasksList.length == 0) {
+      async function getTasks() {
+        if (!userID) return;
+        const response = await fetch(
+          `http://localhost:3000/tasks/?userId=${userID}`
+        );
+        if (!response.ok)
+          throw new Error(
+            "Error: response is not ok, status:  " + response.status
+          );
+        const data = await response.json();
+        setTasksList(data);
+      }
+      if (tasksList.length == 0) getTasks();
+    }
+  }, [userID]);
+  useEffect(() => {
+    if (condition == false) localStorage.removeItem("conditionTasks");
+    else localStorage.setItem("conditionTasks", JSON.stringify(condition));
     return () => {
       localStorage.removeItem("conditionTasks");
     };
   }, [condition]);
   useEffect(() => {
-    console.log('in set check',tasksList.length);
-    
+    localStorage.setItem("tasksList", JSON.stringify(tasksList));
+    return () => {
+      localStorage.removeItem("tasksList");
+    };
+  }, [tasksList]);
+  useEffect(() => {
+    localStorage.setItem("titleTasks", JSON.stringify(title));
+    return () => {
+      localStorage.removeItem("titleTasks");
+    };
+  }, [title]);
+  useEffect(() => {
+    localStorage.setItem("taskIDTasks", JSON.stringify(taskID));
+    return () => {
+      localStorage.removeItem("taskIDTasks");
+    };
+  }, [taskID]);
+  useEffect(() => {
+    if (condition)
+      localStorage.setItem("conditionTasks", JSON.stringify(condition));
+    else localStorage.removeItem("conditionTasks");
+  }, [condition]);
+
+  useEffect(() => {
     if (tasksList.length == 0) return;
-    console.log(condition);
-    
     switch (condition) {
       case "byId":
         setCheck(() => (task) => {
@@ -75,55 +119,28 @@ export default function Tasks(props) {
     return;
   }, [condition, title, taskID,tasksList]);
   useEffect(() => {
-    localStorage.setItem("tasksListTasks", JSON.stringify(tasksList));
-    return () => {
-      localStorage.removeItem("tasksListTasks");
-    };
-  }, [tasksList]);
-
-  useEffect(() => {
-    localStorage.setItem("titleTasks", JSON.stringify(title));
-    return () => {
-      localStorage.removeItem("titleTasks");
-    };
-  }, [title]);
-  useEffect(() => {
-    localStorage.setItem("taskIDTasks", JSON.stringify(taskID));
-    return () => {
-      localStorage.removeItem("taskIDTasks")
+    if (sortConditionTasks)
+      localStorage.setItem(
+        "sortConditionTasks",
+        JSON.stringify(sortConditionTasks)
+      );
+    switch (sortConditionTasks) {
+      case "title":
+        sortList("title");
+        break;
+      case "id":
+        sortList("id");
+      case "true":
+        sortList("true");
+        break;
+      case "false":
+        sortList("false");
+        break;
     }
-  }, [taskID]);
-  useEffect(() => {
-    if (condition)
-      localStorage.setItem("conditionTasks", JSON.stringify(condition));
-    else localStorage.removeItem("conditionTasks");
-  }, [condition]);
-  useEffect(() => {
-    console.log(tasksList.length);
-
-    if (tasksList.length == 0) {
-      async function getTasks() {
-        console.log("in function");
-        console.log(userID);
-
-        if (!userID) return;
-        const response = await fetch(
-          `http://localhost:3000/tasks/?userId=${userID}`
-        );
-        console.log(response);
-
-        if (!response.ok)
-          throw new Error(
-            "Error: response is not ok, status:  " + response.status
-          );
-        const data = await response.json();
-        setTasksList(data);
-        console.log("after set");
-        console.log(await data);
-      }
-      if (tasksList.length == 0) getTasks();
-    }
-  }, [userID]);
+    return () => {
+      localStorage.removeItem("sortConditionTask");
+    };
+  }, [sortConditionTasks]);
   async function deleteTask(id) {
     const response = await fetch(`http://localhost:3000/tasks/${id}`, {
       method: "DELETE",
@@ -265,11 +282,57 @@ export default function Tasks(props) {
         by ID
       </button>
 
-      <input type="text" onChange={(e) => setTaskID(e.target.value)}></input>
-      <button onClick={back}>Back To All Tasks</button>
-      <button className="addNewTask" onClick={() => setNewTask(!newTask)}>
-        Add New Task
-      </button>
+        <button
+          onClick={() => {
+            setCondition("uncompletedOnly");
+            setCheck(() => (task) => {
+              return !task.completed;
+            });
+            navigate(`?completed=false`);
+          }}
+        >
+          Uncompleted Only
+        </button>
+
+        <button onClick={back}>Back To All Tasks</button>
+
+        <button onClick={() => setNewTask(!newTask)}>Add New Task</button>
+
+        <button
+          onClick={() => {
+            setCondition("byTitle");
+            setCheck(() => (task) => {
+              return task.title == title;
+            });
+            navigate(`?title=${title}`);
+          }}
+        >
+          By Title
+        </button>
+        <input
+          type="text"
+          placeholder="Enter title"
+          onChange={(e) => setTitle(e.target.value)}
+          value={title}
+        />
+
+        <button
+          onClick={() => {
+            setCondition("byId");
+            setCheck(() => (task) => {
+              return task.id == taskID;
+            });
+            navigate(`?id=${taskID}`);
+          }}
+        >
+          By ID
+        </button>
+        <input
+          type="text"
+          placeholder="Enter ID"
+          onChange={(e) => setTaskID(e.target.value)}
+        />
+      </div>
       {newTask ? (
         <>
           <form onSubmit={handleSubmit(addNewTask)}>

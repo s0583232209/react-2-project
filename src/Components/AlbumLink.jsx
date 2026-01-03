@@ -11,12 +11,13 @@ import Album from "./Album";
 export default function AlbumLink(props) {
   const navigate = useNavigate();
   const { id } = useParams();
+
+  const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
+  const [show, setShow] = useState(false);
   useEffect(() => {
     if (!userID) navigate("/login", { state: "this should be the url" });
     if (!(id == userID)) navigate("/access_denied");
   }, []);
-  const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
-  const [show, setShow] = useState(false);
   useEffect(() => {
     if (show) {
       props.changeStateAlbumView(true);
@@ -25,18 +26,17 @@ export default function AlbumLink(props) {
   }, [show]);
   return (
     <div className="albumLink">
-      <h3>#{props.id} - {props.title}</h3>
+      <h3>
+        #{props.id} - {props.title}
+      </h3>
       <button
         onClick={() => {
-          console.log("in on Click");
           setShow(true);
         }}
       >
         Open Album
       </button>
-      <button onClick={() => props.deleteAlbum(props.id)}>
-        Delete
-      </button>
+      <button onClick={() => props.deleteAlbum(props.id)}>Delete</button>
     </div>
   );
 }

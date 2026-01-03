@@ -345,10 +345,8 @@
 // }
 import {
   Outlet,
-  Link,
   useNavigate,
   useParams,
-  useLocation,
   useSearchParams,
 } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -358,14 +356,13 @@ import NavBar from "./NavBar";
 import Login from "./Login";
 
 export default function Tasks(props) {
-  
-  
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { id } = useParams();
   const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
-  const [sortConditionTasks, setSortConditonTasks] = useState(() => {
-    return searchParams.get("sortBy") || null;
-  });
+  const [sortConditionTasks, setSortConditonTasks] = useState(
+    searchParams.get("sortBy") || null
+  );
   const [tasksList, setTasksList] = useState(() => {
     return JSON.parse(localStorage.getItem("tasksList")) || [];
   });

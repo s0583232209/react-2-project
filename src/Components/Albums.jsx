@@ -51,38 +51,59 @@ export default function Albums(props) {
   }, []);
   useEffect(() => {
     async function getAlbums() {
-      const response = await fetch(
-        `http://localhost:3000/albums/?userId=${userID}`
-      );
-      console.log(response);
-
-      const data = await response.json();
-      setUsersAlbums(data);
+      try {
+        const response = await fetch(
+          `http://localhost:3000/albums/?userId=${userID}`
+        );
+        if (!response.ok)
+          throw new Error(
+            `status: ${response.status}\n The sever could not get the albums, please try again later.`
+          );
+        const data = await response.json();
+        setUsersAlbums(data);
+      } catch (error) {
+        alert(error);
+        navigate("/");
+      }
     }
     if (userID) getAlbums();
   }, []);
   async function addNewAlbum() {
-    const response = await fetch(`http://localhost:3000/albums`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: newAlbumsTitle,
-        userId: Number(userID),
-      }),
-    });
-    if (!response.ok) return console.log("error, status:" + response.status);
-    const newAlbum = await response.json();
-    setUsersAlbums((prev) => [...prev, newAlbum]);
-    setNewAlbumsTitle("");
+    try {
+      const response = await fetch(`http://localhost:3000/albums`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newAlbumsTitle,
+          userId: Number(userID),
+        }),
+      });
+      if (!response.ok)
+        throw new Error(
+          `status: ${response.status}\n The server could not add the albums to the database, please try again later`
+        );
+      const newAlbum = await response.json();
+      setUsersAlbums((prev) => [...prev, newAlbum]);
+      setNewAlbumsTitle("");
+    } catch (error) {
+      alert(error);
+    }
   }
   async function deleteAlbum(id) {
-    const response = await fetch(`http://localhost:3000/albums/${id}`, {
-      method: "DELETE",
-    });
+    try {
+      const response = await fetch(`http://localhost:3000/albums/${id}`, {
+        method: "DELETE",
+      });
 
-    if (response.ok) {
+      if (!response.ok) {
+        throw new Error(
+          `status: ${response.status}\n The server could not delete the albums from the database, plaese try again later.`
+        );
+      }
       setUsersAlbums((prev) => prev.filter((album) => album.id != id));
-    } else console.log("error, statue:" + response.status);
+    } catch (error) {
+      alert(error);
+    }
   }
 
   return (

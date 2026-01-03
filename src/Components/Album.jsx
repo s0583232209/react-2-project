@@ -8,6 +8,7 @@ export default function Album() {
   const navigate = useNavigate();
   const href = useHref();
   const { register, handleSubmit } = useForm();
+  const [newPhotosIds, setNewPhotosIds] = useState();
   const [photos, setPhotos] = useState(() => {
     if (localStorage.getItem("photos"))
       return JSON.parse(localStorage.getItem("photos"));
@@ -27,14 +28,23 @@ export default function Album() {
       const sessionId =
         JSON.parse(sessionStorage.getItem("current-user"))?.id || false;
       if (!sessionId) navigate("/login");
-      if (userId !== sessionId && userId !== undefined)
-        navigate("/access_denied");
-      const response = await fetch(
-        `http://localhost:3000/albums/${albumId}?userId=${userId}`
-      );
-      const data = await response.json();
-      if (data.userId != userId) navigate("/access_denied");
-      setTitle(data.title);
+      try {
+        if (userId !== sessionId && userId !== undefined)
+          navigate("/access_denied");
+        const response = await fetch(
+          `http://localhost:3000/albums/${albumId}?useId=${userId}`
+        );
+        if (!response.ok)
+          throw new Error(
+            "status: " + response.status + "\n from check access"
+          );
+        const data = await response.json();
+        if (data.userId != userId) navigate("/access_denied");
+        setTitle(data.title);
+      } catch (error) {
+        alert(error);
+        navigate("/");
+      }
     }
     if (userId) checkAccess();
   }, [userId]);
@@ -51,13 +61,29 @@ export default function Album() {
   }, [visibleCount]);
   useEffect(() => {
     async function getPhotos() {
-      const response = await fetch(
-        `http://localhost:3000/photos/?albumId=${albumId}&_start=${
-          visibleCount - 4
-        }&_end=${visibleCount}`
-      );
-      const data = await response.json();
-      setPhotos((prev) => [...prev, ...data]);
+      try {
+        const response = await fetch(
+          `http://localhost:3000/photos/?albumId=${albumId}&_start=${
+            visibleCount - 4
+          }&_end=${visibleCount}`
+        );
+        if (!response.ok)
+          throw new Error(
+            "status: " +
+              response.status +
+              "\n the server did not respose for fetching more photos, try again later"
+          );
+        const data = await response.json();
+        setPhotos((prev) => {
+          data.filter(
+            (photo1) => !prev.some((photo2) => photo1.id === photo2.id)
+          );
+          return [...prev, ...data];
+        });
+      } catch (error) {
+        alert(error);
+        navigate("/");
+      }
     }
     if (photos.length < visibleCount) getPhotos();
   }, [id, visibleCount]);
@@ -68,38 +94,59 @@ export default function Album() {
     };
   }, [photos]);
   async function deletePhoto(id) {
-    const response = await fetch(`http://localhost:3000/photos/${id}`, {
-      method: "DELETE",
-    });
-    if (response.ok) {
+    try {
+      const response = await fetch(`http://localhost:3000/photos/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error(
+          `status: ${response.status} \n The server could not delete this photo, please try again later.`
+        );
+      }
       setPhotos((prev) => prev.filter((photo) => photo.id != id));
+    } catch (error) {
+      alert(error);
     }
   }
   async function changeTitle(id, newTitle) {
     let photo = photos.find((photo) => photo.id == id);
     photo.title = newTitle;
-    const response = await fetch(`http://localhost:3000/photos/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(photo),
-    });
-    if (response.ok)
+    try {
+      const response = await fetch(`http://localhost:3000/photos/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(photo),
+      });
+      if (!response.ok)
+        throw new Error(
+          `staus: ${response.status}\n The server could not update the title for this photo, please try again later`
+        );
       setPhotos((prev) =>
         prev.map((photo) => {
           if (photo.id == id) photo.title = newTitle;
           return photo;
         })
       );
+    } catch (error) {
+      alert(error);
+    }
   }
   async function addPhoto(data) {
-    const response = await fetch(`http://localhost:3000/photos`, {
-      method: "POST",
-      headers: { "content-Type": "application/json" },
-      body: JSON.stringify({ albumId: `${albumId}`, path: `${data.URL}` }),
-    });
-    if (response.ok) {
+    try {
+      const response = await fetch(`http://localhost:3000/photos`, {
+        method: "POST",
+        headers: { "content-Type": "application/json" },
+        body: JSON.stringify({ albumId: `${albumId}`, path: `${data.URL}` }),
+      });
+      if (!response.ok) {
+        throw new Error(
+          `staus: ${response.status}\n The server could not add this URL, please try again later`
+        );
+      }
       const newPhoto = await response.json();
       setPhotos((prev) => [...prev, newPhoto]);
+    } catch (error) {
+      alert(error);
     }
   }
   return (

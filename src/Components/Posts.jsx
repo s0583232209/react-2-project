@@ -2,7 +2,7 @@ import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Post from "./Post";
-import  NavBar  from "./NavBar";
+import NavBar from "./NavBar";
 export default function Posts() {
     const navigate = useNavigate();
     const currentUser = JSON.parse(sessionStorage.getItem("current-user")) || {};
@@ -72,10 +72,10 @@ export default function Posts() {
             const res = await fetch(`http://localhost:3000/posts?_limit=${LIMIT}&_start=${page * LIMIT}`);
             const data = await res.json();
             setPostsList(prev => {
-                const ids = new Set(prev.map(p => p.id));
-                const newPosts = data.filter(p => !ids.has(p.id));
+                const newPosts = data.filter(p => !prev.some(p2 => p2.id === p.id));
                 return [...prev, ...newPosts];
             });
+
             setHasMore(data.length === LIMIT);
             setLoading(false);
         }

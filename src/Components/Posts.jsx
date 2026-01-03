@@ -1,73 +1,48 @@
-import { Outlet, useNavigate, useParams } from "react-router-dom";
+import { Outlet, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Post from "./Post";
 import NavBar from "./NavBar";
 export default function Posts() {
     const navigate = useNavigate();
-    const currentUser = JSON.parse(sessionStorage.getItem("current-user")) || {};
+    const [searchParams] = useSearchParams();
+    const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
     const { id } = useParams();
-    const ID = currentUser.id;
+    useEffect(() => {
+        if (!userID) {
+            navigate("/login");
+            return;
+        }
+        if (String(id) !== String(userID)) {
+            navigate("/access_denied");
+        }
+    }, [userID, id, navigate]);
 
-    if (!ID) navigate("/login");
-    if (id !== ID) navigate("/access_denied");
 
     const LIMIT = 10;
 
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
-    const [postsList, setPostsList] = useState(JSON.parse(localStorage.getItem("postsList")) || []);
+    const [postsList, setPostsList] = useState([]);
     const [newPost, setNewPost] = useState(false);
     const { register, handleSubmit, reset } = useForm();
-
-    const [title, setTitle] = useState(JSON.parse(localStorage.getItem("titlePosts")) || "");
-    const [postID, setPostID] = useState(JSON.parse(localStorage.getItem("idPosts")) || "");
-    const [openPostId, setOpenPostId] = useState(JSON.parse(localStorage.getItem("openPostID")) || null);
-    const [condition, setCondition] = useState(JSON.parse(localStorage.getItem("conditionPosts")) || null);
-
-    const [check, setCheck] = useState(() => {
-        const savedCondition = JSON.parse(localStorage.getItem("conditionPosts"));
-        const savedTitle = JSON.parse(localStorage.getItem("titlePosts"));
-        const savedID = JSON.parse(localStorage.getItem("idPosts"));
-
-        if (savedCondition === "byTitle") return (p) => p.title === savedTitle;
-        if (savedCondition === "byId") return (p) => String(p.id) === String(savedID);
-        return () => true;
-    });
-
+    const [searchID, setSearchID] = useState(searchParams.get("id") || "");
+    const [searchTitle, setSearchTitle] = useState(searchParams.get("title") || "");
+    const [titleInput, setTitleInput] = useState("");
+    const [idInput, setIdInput] = useState("");
+    const [openPostId, setOpenPostId] = useState();
     const isPostOpen = !!openPostId;
+    const isFiltering = !!searchID || !!searchTitle;
 
     useEffect(() => {
-        localStorage.setItem("postsList", JSON.stringify(postsList));
-        return () => {
-            localStorage.removeItem("postsList");
-        };
-    }, [postsList]);
-    useEffect(() => {
-        localStorage.setItem("titlePosts", JSON.stringify(title)); return () => {
-            localStorage.removeItem("titlePosts");
-        };
-    }, [title]);
-    useEffect(() => {
-        localStorage.setItem("idPosts", JSON.stringify(postID)); return () => {
-            localStorage.removeItem("idPosts");
-        };
-    }, [postID]);
-    useEffect(() => {
-        localStorage.setItem("openPostID", JSON.stringify(openPostId)); return () => {
-            localStorage.removeItem("openPostID");
-        };
-    }, [openPostId]);
-    useEffect(() => {
-        localStorage.setItem("conditionPosts", JSON.stringify(condition)); return () => {
-            localStorage.removeItem("conditionPosts");
-        };
-    }, [condition]);
+        setSearchID(searchParams.get("id") || "");
+        setSearchTitle(searchParams.get("title") || "");
+    }, [searchParams]);
 
     useEffect(() => {
         async function fetchPosts() {
-            if (loading || !hasMore || condition) return;
+            if (loading || !hasMore || isFiltering) return;
             setLoading(true);
             const res = await fetch(`http://localhost:3000/posts?_limit=${LIMIT}&_start=${page * LIMIT}`);
             const data = await res.json();
@@ -80,47 +55,73 @@ export default function Posts() {
             setLoading(false);
         }
         if (postsList.length === 0 || page > 0) fetchPosts();
-    }, [page, condition]);
+    }, [page, isFiltering]);
+
+
+    useEffect(() => {
+        async function fetchFromURL() {
+            if (searchTitle) {
+                setLoading(true);
+                const res = await fetch(
+                    `http://localhost:3000/posts?title=${searchTitle}`
+                );
+                const data = await res.json();
+                setPostsList(data);
+                setHasMore(false);
+                setLoading(false);
+            }
+
+            if (searchID) {
+                setLoading(true);
+                const res = await fetch(
+                    `http://localhost:3000/posts?id=${searchID}`
+                );
+                const data = await res.json();
+                setPostsList(data);
+                setHasMore(false);
+                setLoading(false);
+            }
+        }
+
+        fetchFromURL();
+    }, [searchTitle, searchID]);
 
     async function searchByTitle() {
-        if (!title.trim()) return;
-        const localMatch = postsList.find(p => p.title === title);
+        if (!titleInput.trim()) return;
+        const localMatch = postsList.find(p => p.title === titleInput);
         if (!localMatch) {
             setLoading(true);
-            const res = await fetch(`http://localhost:3000/posts?title=${title}`);
+            const res = await fetch(`http://localhost:3000/posts?title=${titleInput}`);
             const data = await res.json();
             if (data.length > 0) {
                 setPostsList(prev => [...prev, ...data]);
             }
             setLoading(false);
         }
-        setCheck(() => post => post.title === title);
-        setCondition("byTitle");
         setHasMore(false);
-        navigate(`?title=${title}`);
+        navigate(`?title=${titleInput}`);
     }
     async function searchById() {
-        if (!postID) return;
-        const localMatch = postsList.find(p => String(p.id) === String(postID));
+        if (!idInput) return;
+        const localMatch = postsList.find(p => String(p.id) === String(idInput));
         if (!localMatch) {
             setLoading(true);
-            const res = await fetch(`http://localhost:3000/posts?id=${postID}`);
+            const res = await fetch(`http://localhost:3000/posts?id=${idInput}`);
             const data = await res.json();
             if (data.length > 0) {
                 setPostsList(prev => [...prev, ...data]);
             }
             setLoading(false);
         }
-        setCheck(() => post => String(post.id) === String(postID));
-        setCondition("byId");
         setHasMore(false);
-        navigate(`?id=${postID}`);
+        navigate(`?id=${idInput}`);
     }
     function resetFilters() {
-        setCondition(null);
-        setCheck(() => () => true);
-        setTitle("");
-        setPostID("");
+        setTitleInput("");
+        setIdInput("");
+        setSearchID("");
+        setSearchTitle("");
+        setPostsList([]);
         setPage(0);
         setHasMore(true);
         navigate(`/Posts/${id}`);
@@ -139,7 +140,7 @@ export default function Posts() {
         const response = await fetch(`http://localhost:3000/posts`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: ID, title: data.title, body: data.body }),
+            body: JSON.stringify({ userId: userID, title: data.title, body: data.body }),
         });
         if (response.ok) {
             const newPost = await response.json();
@@ -170,9 +171,9 @@ export default function Posts() {
                 <h1>Posts</h1>
                 <div className="filters">
                     <button onClick={searchByTitle}>by title</button>
-                    <input value={title} onChange={e => setTitle(e.target.value)} />
+                    <input value={titleInput} onChange={e => setTitleInput(e.target.value)} />
                     <button onClick={searchById}> by ID </button>
-                    <input value={postID} onChange={e => setPostID(e.target.value)} />
+                    <input value={idInput} onChange={e => setIdInput(e.target.value)} />
                     <button onClick={resetFilters}>Back To All Posts</button>
                 </div>
 
@@ -189,9 +190,13 @@ export default function Posts() {
 
                 <div className="posts-list">
                     {(() => {
-                        const filtered = postsList.filter(p => p.id !== openPostId).filter(check);
+                        const filtered = postsList.filter(p => p.id !== openPostId).filter(post => {
+                            if (searchID) return String(post.id) === String(searchID);
+                            if (searchTitle) return post.title === searchTitle;
+                            return true;
+                        });
 
-                        if (condition && filtered.length === 0 && !loading) {
+                        if (isFiltering && filtered.length === 0 && !loading) {
                             return <p>No matches found</p>;
                         }
 
@@ -199,7 +204,7 @@ export default function Posts() {
                             <Post
                                 key={post.id}
                                 {...post}
-                                currentUser={post.userId === ID}
+                                currentUser={post.userId === userID}
                                 edit={updatePost}
                                 onDelete={deletePost}
                                 isExpanded={false}
@@ -208,7 +213,7 @@ export default function Posts() {
                         ));
                     })()}
                 </div>
-                {hasMore && !condition && (
+                {hasMore && !isFiltering && (
                     <button disabled={loading} onClick={() => setPage(p => p + 1)}>
                         {loading ? "Loading..." : "See more"}
                     </button>
@@ -219,7 +224,7 @@ export default function Posts() {
                 <Post
                     key={`expanded-${openPostId}`}
                     {...postsList.find(p => p.id === openPostId)}
-                    currentUser={postsList.find(p => p.id === openPostId)?.userId === ID}
+                    currentUser={postsList.find(p => p.id === openPostId)?.userId === userID}
                     edit={updatePost}
                     onDelete={deletePost}
                     isExpanded
@@ -230,3 +235,5 @@ export default function Posts() {
         </>
     );
 }
+
+

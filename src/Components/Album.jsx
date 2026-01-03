@@ -73,9 +73,9 @@ export default function Album() {
               response.status +
               "\n the server did not respose for fetching more photos, try again later"
           );
-        const data = await response.json();
+        let data = await response.json();
         setPhotos((prev) => {
-          data.filter(
+          data=data.filter(
             (photo1) => !prev.some((photo2) => photo1.id === photo2.id)
           );
           return [...prev, ...data];

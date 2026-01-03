@@ -345,8 +345,10 @@
 // }
 import {
   Outlet,
+  Link,
   useNavigate,
   useParams,
+  useLocation,
   useSearchParams,
 } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -357,12 +359,13 @@ import Login from "./Login";
 
 export default function Tasks(props) {
   const [searchParams] = useSearchParams();
+
   const navigate = useNavigate();
   const { id } = useParams();
   const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
-  const [sortConditionTasks, setSortConditonTasks] = useState(
-    searchParams.get("sortBy") || null
-  );
+  const [sortConditionTasks, setSortConditonTasks] = useState(() => {
+    return searchParams.get("sortBy") || null;
+  });
   const [tasksList, setTasksList] = useState(() => {
     return JSON.parse(localStorage.getItem("tasksList")) || [];
   });
@@ -370,6 +373,8 @@ export default function Tasks(props) {
   const { register, handleSubmit, reset } = useForm();
   const [title, setTitle] = useState(searchParams.get("title") || "");
   const [taskID, setTaskID] = useState(searchParams.get("id") || "");
+  console.log(title, taskID);
+
   const [check, setCheck] = useState(() => () => {
     return true;
   });
@@ -382,11 +387,12 @@ export default function Tasks(props) {
     ];
     for (let i = 0; i < conditions.length; i++) {
       condition = searchParams.get(conditions[i].url);
-      console.log(condition);
-
+      console.log(conditions[i].url,taskID);
       if (condition) {
         if (condition == "false") return "uncompletedOnly";
         if (condition == "true") return "completedOnly";
+        if (conditions[i].url == "id") return "byId";
+        if (conditions[i].url == "title") return "byTitle";
         else return condition;
       }
     }
@@ -432,6 +438,7 @@ export default function Tasks(props) {
     console.log(tasksList);
     if (tasksList.length == 0) return;
     switch (condition) {
+      case "byId":
       case "Id":
         setCheck(() => (task) => {
           return task.id == taskID;
@@ -447,6 +454,7 @@ export default function Tasks(props) {
           return !task.completed;
         });
         break;
+      case "byTitle":
       case "title":
         setCheck(() => (task) => {
           return task.title == title;

@@ -1,5 +1,6 @@
 import dinosaur404error from "../assets/dinosaur404.png"
 import panda404 from "../assets/panda404.png"
+import { useNavigate } from "react-router-dom";
 export default function ErrorPage() {
   const navigate = useNavigate();
   return (

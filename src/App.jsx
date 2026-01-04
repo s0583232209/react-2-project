@@ -16,10 +16,7 @@ import { AccessDenied } from "./Components/AccessDenied.jsx";
 import {
   BrowserRouter as Router,
   Routes,
-  Route,
-  Link,
-  Outlet,
-  NavLink,
+  Route
 } from "react-router-dom";
 export const appContext = createContext();
 function App() {

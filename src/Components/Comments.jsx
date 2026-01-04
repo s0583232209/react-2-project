@@ -1,4 +1,4 @@
-import { Outlet, Link, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Comment from "./Comment";
@@ -6,7 +6,6 @@ export default function Comments(props) {
     const [commentsList, setCommentsList] = useState([]);
     const [newComment, setNewComment] = useState(false);
     const { register, handleSubmit, reset } = useForm();
-    const navigate = useNavigate();
     const userEmail = JSON.parse(sessionStorage.getItem("current-user")).email || "null";
     useEffect(() => {
         setCommentsList([]);

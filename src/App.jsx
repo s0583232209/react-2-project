@@ -21,11 +21,11 @@ import {
   Outlet,
   NavLink,
 } from "react-router-dom";
-export const AppContaxt = createContext();
+export const AppContext = createContext();
 function App() {
   const [userID, setUserID] = useState(null);
   return (
-    <AppContaxt.Provider value={{ userID, setUserID }}>
+    <AppContext.Provider value={{ userID, setUserID }}>
       <Routes>
         <Route path="/login" element={<Login />}></Route>
         <Route path="/register" element={<Register />}></Route>
@@ -41,7 +41,7 @@ function App() {
         <Route path="/access_denied" element={<AccessDenied />}></Route>
         <Route path="*" element={<ErrorPage />}></Route>
       </Routes>
-    </AppContaxt.Provider>
+    </AppContext.Provider>
   );
 }
 

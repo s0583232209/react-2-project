@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useState, useContext, useEffect } from "react";
-import { AppContaxt } from "../App";
+import { appContext } from "../App";
 export default function Login() {
   const { register, handleSubmit, reset } = useForm();
   const [error, setError] = useState(null);
   const navigation = useNavigate();
-  const { setUserID } = useContext(AppContaxt);
+  const { setUserID } = useContext(appContext);
   async function login(data) {
     try {
       const response = await fetch(
@@ -19,7 +19,7 @@ export default function Login() {
       setUserID(user[0].id);
       navigation("/");
     } catch (error) {
-      setError(error);
+      setError(String(error));
     }
   }
   useEffect(() => {

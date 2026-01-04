@@ -8,11 +8,11 @@ import { useState, useEffect, useContext } from "react";
 import { useForm } from "react-hook-form";
 import Post from "./Post";
 import NavBar from "./NavBar";
-import { AppContaxt } from "../App";
+import { appContext } from "../App";
 export default function Posts() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { userID } = useContext(AppContaxt);
+  const { userID } = useContext(appContext);
   const { id } = useParams();
   useEffect(() => {
     if (!userID) {

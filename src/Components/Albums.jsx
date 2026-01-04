@@ -181,7 +181,7 @@ import { useState, useEffect } from "react";
 import NavBar from "./NavBar";
 import AlbumLink from "./AlbumLink";
 import Loading from "./Loading";
-export default function Albums(props) {
+export default function Albums() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   console.log(searchParams.get("title"), "searchparams");

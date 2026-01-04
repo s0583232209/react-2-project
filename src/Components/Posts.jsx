@@ -12,7 +12,7 @@ import { appContext } from "../App";
 export default function Posts() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { userID } = useContext(appContext);
+  const { userID } = useContext(AppContaxt);
   const { id } = useParams();
   useEffect(() => {
     if (!userID) {

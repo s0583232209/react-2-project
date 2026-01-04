@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import NavBar from "./NavBar";
 import "./Album.css";
 import Loading from "./Loading";
-import { appContext } from "../App";
+import { AppContaxt } from "../App";
 export default function Album() {
   const navigate = useNavigate();
   const href = useHref();
@@ -18,7 +18,7 @@ export default function Album() {
   });
   const { id } = useParams();
   const albumId = id;
-  const { userID } = useContext(appContext);
+  const { userID } = useContext(AppContaxt);
   const [title, setTitle] = useState();
   const [visibleCount, setVisibleCount] = useState(() => {
     if (localStorage.getItem("visibleCountAlbum"))

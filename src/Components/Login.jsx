@@ -6,7 +6,7 @@ export default function Login() {
   const { register, handleSubmit, reset } = useForm();
   const [error, setError] = useState(null);
   const navigation = useNavigate();
-  const { setUserID } = useContext(appContext);
+  const { setUserID } = useContext(AppContaxt);
   async function login(data) {
     try {
       const response = await fetch(

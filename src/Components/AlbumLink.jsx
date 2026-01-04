@@ -13,7 +13,7 @@ export default function AlbumLink(props) {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const { userID } = useContext(appContext);
+  const { userID } = useContext(AppContaxt);
   const [show, setShow] = useState(false);
   useEffect(() => {
     if (!userID) navigate("/login", { state: "this should be the url" });

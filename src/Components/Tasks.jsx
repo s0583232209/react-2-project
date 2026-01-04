@@ -97,9 +97,9 @@ export default function Tasks() {
       case "byId":
       case "Id":
         console.log(taskID);
-        
+
         setCheck(() => (task) => {
-          return task.id==taskID;
+          return task.id == taskID;
         });
         break;
       case "completedOnly":
@@ -299,43 +299,43 @@ export default function Tasks() {
       <button onClick={back}>Back To All Tasks</button>
 
       <button onClick={() => setNewTask(!newTask)}>Add New Task</button>
+      <div>
+        <button
+          onClick={() => {
+            setCondition("byTitle");
+            setCheck(() => (task) => {
+              return task.title == title;
+            });
+            navigate(`?title=${title}`);
+          }}
+        >
+          By Title
+        </button>
+        <input
+          type="text"
+          placeholder="Enter title"
+          onChange={(e) => setTitle(e.target.value)}
+          value={title}
+        />
 
-      <button
-        onClick={() => {
-          setCondition("byTitle");
-          setCheck(() => (task) => {
-            return task.title == title;
-          });
-          navigate(`?title=${title}`);
-        }}
-      >
-        By Title
-      </button>
-      <input
-        type="text"
-        placeholder="Enter title"
-        onChange={(e) => setTitle(e.target.value)}
-        value={title}
-      />
-
-      <button
-        onClick={() => {
-          setCondition("byId");
-          setCheck(() => (task) => {
-            return Number(task.id) === Number(taskID);
-          });
-          navigate(`?id=${taskID}`);
-        }}
-      >
-        By ID
-      </button>
-      <input
-        type="text"
-        placeholder="Enter ID"
-        value={taskID}
-        onChange={(e) => setTaskID(e.target.value)}
-      />
-
+        <button
+          onClick={() => {
+            setCondition("byId");
+            setCheck(() => (task) => {
+              return Number(task.id) === Number(taskID);
+            });
+            navigate(`?id=${taskID}`);
+          }}
+        >
+          By ID
+        </button>
+        <input
+          type="text"
+          placeholder="Enter ID"
+          value={taskID}
+          onChange={(e) => setTaskID(e.target.value)}
+        />
+      </div>
       {newTask ? (
         <>
           <form onSubmit={handleSubmit(addNewTask)}>

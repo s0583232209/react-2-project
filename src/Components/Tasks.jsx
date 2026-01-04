@@ -257,7 +257,7 @@ export default function Tasks() {
   }
   return (
     <>
-      {loading ? <Loading message={"loading Tasks"}></Loading> : null}
+      {loading ? <Loading message={"loading Tasks..."}></Loading> : null}
       <NavBar></NavBar>
       <h1>Tasks</h1>
       <select onChange={(e) => sortList(e.target.value)}>

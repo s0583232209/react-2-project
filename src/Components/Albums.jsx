@@ -180,7 +180,7 @@ import {
 import { useState, useEffect } from "react";
 import NavBar from "./NavBar";
 import AlbumLink from "./AlbumLink";
-
+import Loading from "./Loading";
 export default function Albums(props) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -190,6 +190,7 @@ export default function Albums(props) {
     if (!userID) navigate("/login", { state: "this should be the url" });
     if (!(id == userID)) navigate("/access_denied");
   }, []);
+  const [loading, setLoading] = useState(false);
   const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
   const [useresAlbums, setUsersAlbums] = useState([]);
   const [albumView, setAlbumView] = useState(false);
@@ -220,6 +221,7 @@ export default function Albums(props) {
   useEffect(() => {
     async function getAlbums() {
       try {
+        setLoading(true);
         const response = await fetch(
           `http://localhost:3000/albums/?userId=${userID}`
         );
@@ -232,6 +234,8 @@ export default function Albums(props) {
       } catch (error) {
         alert(error);
         navigate("/");
+      } finally {
+        setLoading(false);
       }
     }
     if (userID) getAlbums();
@@ -276,6 +280,7 @@ export default function Albums(props) {
 
   return (
     <>
+      {loading ? <Loading message="Loading Albums..."></Loading> : null}
       <NavBar></NavBar>
       <h1>Albums</h1>
       <div className="filters">

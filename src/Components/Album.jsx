@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import NavBar from "./NavBar";
 import "./Album.css";
-
+import Loading from "./Loading";
 export default function Album() {
   const navigate = useNavigate();
   const href = useHref();
   const { register, handleSubmit } = useForm();
-  const [newPhotosIds, setNewPhotosIds] = useState();
+  const [loading, setLoading] = useState(false);
+
   const [photos, setPhotos] = useState(() => {
     if (localStorage.getItem("photos"))
       return JSON.parse(localStorage.getItem("photos"));
@@ -32,6 +33,7 @@ export default function Album() {
       try {
         if (userId !== sessionId && userId !== undefined)
           navigate("/access_denied");
+        setLoading(true);
         const response = await fetch(
           `http://localhost:3000/albums/${albumId}?useId=${userId}`
         );
@@ -45,6 +47,8 @@ export default function Album() {
       } catch (error) {
         alert(error);
         navigate("/");
+      } finally {
+        setTimeout(() => setLoading(false), 1000);
       }
     }
     if (userId) checkAccess();
@@ -63,6 +67,7 @@ export default function Album() {
   useEffect(() => {
     async function getPhotos() {
       try {
+        setLoading(true);
         const response = await fetch(
           `http://localhost:3000/photos/?albumId=${albumId}&_start=${
             visibleCount - 4
@@ -76,7 +81,7 @@ export default function Album() {
           );
         let data = await response.json();
         setPhotos((prev) => {
-          data=data.filter(
+          data = data.filter(
             (photo1) => !prev.some((photo2) => photo1.id === photo2.id)
           );
           return [...prev, ...data];
@@ -84,6 +89,8 @@ export default function Album() {
       } catch (error) {
         alert(error);
         navigate("/");
+      } finally {
+        setTimeout(() => setLoading(false), 1000);
       }
     }
     if (photos.length < visibleCount) getPhotos();
@@ -152,6 +159,7 @@ export default function Album() {
   }
   return (
     <>
+      {loading ? <Loading message="Loading Photos..."></Loading> : null}
       <NavBar></NavBar>
       <h1>{title}</h1>
       <form onSubmit={handleSubmit(addPhoto)}>

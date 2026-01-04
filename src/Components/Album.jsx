@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import NavBar from "./NavBar";
 import "./Album.css";
+
 export default function Album() {
   const navigate = useNavigate();
   const href = useHref();

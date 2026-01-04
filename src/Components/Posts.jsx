@@ -51,17 +51,29 @@ export default function Posts() {
     async function fetchPosts() {
       if (loading || !hasMore || isFiltering) return;
       setLoading(true);
-      const res = await fetch(
-        `http://localhost:3000/posts?_limit=${LIMIT}&_start=${page * LIMIT}`
-      );
-      const data = await res.json();
-      setPostsList((prev) => {
-        const newPosts = data.filter((p) => !prev.some((p2) => p2.id === p.id));
-        return [...prev, ...newPosts];
-      });
+      try {
+        const res = await fetch(
+          `http://localhost:3000/posts?_limit=${LIMIT}&_start=${page * LIMIT}`
+        );
+        if (!res.ok)
+          throw new Error(
+            `status: ${res.status}\n Could not load posts, please try again later.`
+          );
+        const data = await res.json();
+        setPostsList((prev) => {
+          const newPosts = data.filter(
+            (p) => !prev.some((p2) => p2.id === p.id)
+          );
+          return [...prev, ...newPosts];
+        });
 
-      setHasMore(data.length === LIMIT);
-      setLoading(false);
+        setHasMore(data.length === LIMIT);
+      } catch (error) {
+        alert(error);
+        navigate("/");
+      } finally {
+        setLoading(false);
+      }
     }
     if (postsList.length === 0 || page > 0) fetchPosts();
   }, [page, isFiltering]);
@@ -70,22 +82,40 @@ export default function Posts() {
     async function fetchFromURL() {
       if (searchTitle) {
         setLoading(true);
-        const res = await fetch(
-          `http://localhost:3000/posts?title=${searchTitle}`
-        );
-        const data = await res.json();
-        setPostsList(data);
-        setHasMore(false);
-        setLoading(false);
+        try {
+          const res = await fetch(
+            `http://localhost:3000/posts?title=${searchTitle}`
+          );
+          if (!res.ok)
+            throw new Error(
+              `status: ${res.status}\n Could not load posts, please try again later.`
+            );
+          const data = await res.json();
+          setPostsList(data);
+          setHasMore(false);
+        } catch (error) {
+          alert(error);
+        } finally {
+          setLoading(false);
+        }
       }
 
       if (searchID) {
         setLoading(true);
-        const res = await fetch(`http://localhost:3000/posts?id=${searchID}`);
-        const data = await res.json();
-        setPostsList(data);
-        setHasMore(false);
-        setLoading(false);
+        try {
+          const res = await fetch(`http://localhost:3000/posts?id=${searchID}`);
+          if (!res.ok)
+            throw new Error(
+              `status: ${res.status}\n Could not load tasks, please try again later.`
+            );
+          const data = await res.json();
+          setPostsList(data);
+          setHasMore(false);
+        } catch (error) {
+          alert(error);
+        } finally {
+          setLoading(false);
+        }
       }
     }
 
@@ -97,14 +127,23 @@ export default function Posts() {
     const localMatch = postsList.find((p) => p.title === titleInput);
     if (!localMatch) {
       setLoading(true);
-      const res = await fetch(
-        `http://localhost:3000/posts?title=${titleInput}`
-      );
-      const data = await res.json();
-      if (data.length > 0) {
-        setPostsList((prev) => [...prev, ...data]);
+      try {
+        const res = await fetch(
+          `http://localhost:3000/posts?title=${titleInput}`
+        );
+        if (!res.ok)
+          throw new Error(
+            `status: ${res.status}\n Could not find post, please try again later.`
+          );
+        const data = await res.json();
+        if (data.length > 0) {
+          setPostsList((prev) => [...prev, ...data]);
+        }
+      } catch (error) {
+        alert(error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     setHasMore(false);
     navigate(`?title=${titleInput}`);
@@ -114,12 +153,21 @@ export default function Posts() {
     const localMatch = postsList.find((p) => String(p.id) === String(idInput));
     if (!localMatch) {
       setLoading(true);
-      const res = await fetch(`http://localhost:3000/posts?id=${idInput}`);
-      const data = await res.json();
-      if (data.length > 0) {
-        setPostsList((prev) => [...prev, ...data]);
+      try {
+        const res = await fetch(`http://localhost:3000/posts?id=${idInput}`);
+        if (!res.ok)
+          throw new Error(
+            `status: ${res.status}\n Could not find post, please try again later.`
+          );
+        const data = await res.json();
+        if (data.length > 0) {
+          setPostsList((prev) => [...prev, ...data]);
+        }
+      } catch (error) {
+        alert(error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     setHasMore(false);
     navigate(`?id=${idInput}`);
@@ -136,47 +184,65 @@ export default function Posts() {
   }
 
   async function deletePost(postId) {
-    const response = await fetch(`http://localhost:3000/posts/${postId}`, {
-      method: "DELETE",
-    });
-    if (response.ok) {
+    try {
+      const res = await fetch(`http://localhost:3000/posts/${postId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok)
+        throw new Error(
+          `status: ${res.status}\n Could not delete post, please try again later.`
+        );
       setPostsList((prev) => prev.filter((p) => p.id !== postId));
       if (openPostId === postId) setOpenPostId(null);
+    } catch (error) {
+      alert(error);
     }
   }
 
   async function addNewPost(data) {
     if (!data.title.trim()) return;
-    const response = await fetch(`http://localhost:3000/posts`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: userID,
-        title: data.title,
-        body: data.body,
-      }),
-    });
-    if (response.ok) {
-      const newPost = await response.json();
+    try {
+      const res = await fetch(`http://localhost:3000/posts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: userID,
+          title: data.title,
+          body: data.body,
+        }),
+      });
+      if (!res.ok)
+        throw new Error(
+          `status: ${res.status}\n Could not add post, please try again later.`
+        );
+      const newPost = await res.json();
       setPostsList((prev) => [newPost, ...prev]);
       setNewPost(false);
       reset();
+    } catch (error) {
+      alert(error);
     }
   }
 
   async function updatePost(postId, updates) {
     const postToEdit = postsList.find((p) => p.id === postId);
     if (!postToEdit) return;
-    const response = await fetch(`http://localhost:3000/posts/${postId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...postToEdit, ...updates }),
-    });
-    if (response.ok) {
-      const updatedPost = await response.json();
+    try {
+      const res = await fetch(`http://localhost:3000/posts/${postId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...postToEdit, ...updates }),
+      });
+      if (!res.ok)
+        throw new Error(
+          `status: ${res.status}\n Could not load tasks, please try again later.`
+        );
+      const updatedPost = await res.json();
       setPostsList((prev) =>
         prev.map((p) => (p.id === postId ? updatedPost : p))
       );
+    } catch (error) {
+      alert(error);
     }
   }
 
@@ -193,7 +259,11 @@ export default function Posts() {
             placeholder="enter title"
           />
           <button onClick={searchById}> Search By ID </button>
-          <input value={idInput} onChange={(e) => setIdInput(e.target.value)} placeholder="enter ID" />
+          <input
+            value={idInput}
+            onChange={(e) => setIdInput(e.target.value)}
+            placeholder="enter ID"
+          />
           <button onClick={resetFilters}>Back To All Posts</button>
         </div>
 

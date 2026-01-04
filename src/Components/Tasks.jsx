@@ -62,6 +62,7 @@ export default function Tasks() {
           setTasksList(data);
         } catch (error) {
           alert(error);
+          navigate('/');
         } finally {
           setTimeout(() => setLoading(false), 1000);
         }

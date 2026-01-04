@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-
+import { appContext } from "../App";
 export default function Register() {
-  sessionStorage.clear();
-  localStorage.clear();
+  useEffect(() => {
+    sessionStorage.clear();
+    localStorage.clear();
+  }, []);
+  const { setUserID } = useContext(appContext);
   const [error, setError] = useState();
   const { register, handleSubmit } = useForm();
   const [step, setStep] = useState(1);
@@ -36,7 +39,7 @@ export default function Register() {
 
       setStep(2);
     } catch (error) {
-      setError(error);
+      setError(String(error));
     }
   }
 
@@ -79,7 +82,7 @@ export default function Register() {
       sessionStorage.setItem("current-user", JSON.stringify(user));
       navigate("/");
     } catch (error) {
-      setError(error);
+      setError(String(error));
     }
   }
 
@@ -108,12 +111,18 @@ export default function Register() {
             id="verifyPassword"
             {...register("verifyPassword")}
           />
-          <p style={"fontColor:red"}>error</p>
+          <p className="errorLog">{error}</p>
 
           <button>Next</button>
         </form>
       )}
-
+      <button
+        onClick={() => {
+          navigate("/login");
+        }}
+      >
+        Login
+      </button>
       {step === 2 && (
         <form onSubmit={handleSubmit(submitStep2)}>
           <label htmlFor="name">Name</label>

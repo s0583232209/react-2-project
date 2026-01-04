@@ -181,32 +181,37 @@ import { useState, useEffect, useContext } from "react";
 import NavBar from "./NavBar";
 import AlbumLink from "./AlbumLink";
 import Loading from "./Loading";
-import { AppContext } from "../App";
+import { appContext } from "../App";
 export default function Albums() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  console.log(searchParams.get("title"), "searchparams");
   const { id } = useParams();
-  useEffect(() => {
-    if (!userID) navigate("/login", { state: "this should be the url" });
-    if (!(id == userID)) navigate("/access_denied");
-  }, []);
   const [loading, setLoading] = useState(false);
-  const userID = useContext(AppContext);
+  const { userID } = useContext(appContext);
   const [useresAlbums, setUsersAlbums] = useState([]);
   const [albumView, setAlbumView] = useState(false);
   const [searchID, setSearchID] = useState(searchParams.get("id") || "");
+  const [inputSearchID, setInputSearchID] = useState("");
   const [searchTitle, setSearchTitle] = useState(
     searchParams.get("title") || ""
   );
+  const [inputSearchTitle, setInputSearchTitle] = useState("");
+
   const [newAlbumsTitle, setNewAlbumsTitle] = useState("");
   const [check, setCheck] = useState(() => () => {
     return true;
   });
-
   useEffect(() => {
-    console.log(searchID == "", searchTitle == "");
+    console.log((id, userID));
 
+    if (!userID) navigate("/login", { state: "this should be the url" });
+    if (!(id == userID)) navigate("/access_denied");
+  }, []);
+  useEffect(() => {
+    setSearchTitle(searchParams.get("title") || "");
+    setSearchID(searchParams.get("id") || "");
+  }, [searchParams]);
+  useEffect(() => {
     if (searchID != "")
       setCheck(() => (album) => {
         return album.id == searchID;
@@ -215,10 +220,11 @@ export default function Albums() {
       setCheck(() => (album) => {
         return album.title == searchTitle;
       });
-    setCheck(() => () => {
-      return true;
-    });
-  }, []);
+    if (searchID == "" && searchTitle == "")
+      setCheck(() => () => {
+        return true;
+      });
+  }, [searchID, searchTitle]);
   useEffect(() => {
     async function getAlbums() {
       try {
@@ -241,6 +247,7 @@ export default function Albums() {
     }
     if (userID) getAlbums();
   }, []);
+
   async function addNewAlbum() {
     try {
       const response = await fetch(`http://localhost:3000/albums`, {
@@ -304,10 +311,8 @@ export default function Albums() {
         />
         <button
           onClick={() => {
-            navigate(`?title=${searchTitle}`);
-            setCheck(() => (album) => {
-              return album.title == searchTitle;
-            });
+            setSearchTitle(inputSearchTitle);
+            navigate(`?title=${inputSearchTitle}`);
           }}
         >
           By Title
@@ -315,15 +320,13 @@ export default function Albums() {
         <input
           type="text"
           placeholder="Enter title"
-          value={searchTitle}
-          onChange={(e) => setSearchTitle(e.target.value)}
+          value={inputSearchTitle}
+          onChange={(e) => setInputSearchTitle(e.target.value)}
         />
         <button
           onClick={() => {
-            navigate(`?id=${searchID}`);
-            setCheck(() => (album) => {
-              return album.id == searchID;
-            });
+            setSearchID(inputSearchID);
+            navigate(`?id=${inputSearchID}`);
           }}
         >
           By ID
@@ -331,8 +334,8 @@ export default function Albums() {
         <input
           type="text"
           placeholder="Enter ID"
-          value={searchID}
-          onChange={(e) => setSearchID(e.target.value)}
+          value={inputSearchID}
+          onChange={(e) => setInputSearchID(e.target.value)}
         />
       </div>
       {!albumView && useresAlbums.length > 0 ? (

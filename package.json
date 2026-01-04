@@ -12,7 +12,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "json:server": "json-server --watch DataBase.json"
+    "json:server": "json-server --watch DataBase/DataBase.json"
   },
   "dependencies": {
     "json-server": "^1.0.0-beta.3",

@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
+import { appContext } from "../App";
 export default function Home() {
+  const {setUserID}=useContext(appContext)
   const navigate = useNavigate();
   const currentUser =
     JSON.parse(sessionStorage.getItem("current-user")) || null;
@@ -12,7 +14,7 @@ export default function Home() {
     }
   }, [currentUser, navigate]);
   if (!currentUser) return null;
-
+  setUserID(JSON.parse(sessionStorage.getItem("current-user")).id || null);
   return (
     <>
       <NavBar></NavBar>

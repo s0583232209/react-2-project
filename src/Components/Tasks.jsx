@@ -6,11 +6,11 @@ import {
   useLocation,
   useSearchParams,
 } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useForm } from "react-hook-form";
 import Task from "./Task";
 import NavBar from "./NavBar";
-
+import { appContext } from "../App";
 import Loading from "./Loading";
 import "./Tasks.css";
 export default function Tasks() {
@@ -18,8 +18,10 @@ export default function Tasks() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
-  const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
+  const { userID } = useContext(appContext);
   const [sortConditionTasks, setSortConditonTasks] = useState(() => {
+    console.log("in set");
+
     return searchParams.get("sortBy") || null;
   });
   const [tasksList, setTasksList] = useState(() => {
@@ -29,32 +31,25 @@ export default function Tasks() {
   const { register, handleSubmit, reset } = useForm();
   const [title, setTitle] = useState(searchParams.get("title") || "");
   const [taskID, setTaskID] = useState(searchParams.get("id") || "");
-  console.log(title, taskID);
-
   const [check, setCheck] = useState(() => () => {
     return true;
   });
-  const [condition, setCondition] = useState(() => {
-    let condition;
-    const conditions = [
-      { url: "title", condition: "title" },
-      { url: "completed", condition: null },
-      { url: "id", condition: "id" },
-    ];
-    for (let i = 0; i < conditions.length; i++) {
-      condition = searchParams.get(conditions[i].url);
-      console.log(conditions[i].url, taskID);
-      if (condition) {
-        if (condition == "false") return "uncompletedOnly";
-        if (condition == "true") return "completedOnly";
-        if (conditions[i].url == "id") return "byId";
-        if (conditions[i].url == "title") return "byTitle";
-        else return condition;
-      }
+  const [condition, setCondition] = useState();
+  useEffect(() => {
+    if (searchParams.get("id")) {
+      setCondition("byId");
+      setTaskID(searchParams.get("id"));
+    } else if (searchParams.get("title")) {
+      setCondition("byTitle");
+      setTitle(searchParams.get("title"));
+    } else if (searchParams.get("completed") === "true") {
+      setCondition("completedOnly");
+    } else if (searchParams.get("completed") === "false") {
+      setCondition("uncompletedOnly");
+    } else {
+      setCondition(null);
     }
-  });
-  console.log(condition);
-
+  }, [searchParams]);
   useEffect(() => {
     if (!userID) navigate("/login", { state: "this should be the url" });
     if (!(id == userID)) navigate("/access_denied");
@@ -97,14 +92,14 @@ export default function Tasks() {
   }, [condition]);
 
   useEffect(() => {
-    console.log("in effect for condition", condition);
-    console.log(tasksList);
     if (tasksList.length == 0) return;
     switch (condition) {
       case "byId":
       case "Id":
+        console.log(taskID);
+        
         setCheck(() => (task) => {
-          return task.id == taskID;
+          return task.id==taskID;
         });
         break;
       case "completedOnly":
@@ -138,6 +133,7 @@ export default function Tasks() {
         break;
       case "id":
         sortList("id");
+        break;
       case "true":
         sortList("true");
         break;
@@ -197,7 +193,7 @@ export default function Tasks() {
     }
   }
   async function updateTask(taskId, edits) {
-    const taskToEdit = tasksList.find((t) => t.id === taskId);
+    const taskToEdit = tasksList.find((t) => t.id == taskId);
     const editedTask = { ...taskToEdit, ...edits };
     try {
       setLoading(true);
@@ -212,7 +208,7 @@ export default function Tasks() {
         );
       const updatedTask = await response.json();
       setTasksList((prev) =>
-        prev.map((task) => (task.id === taskId ? updatedTask : task))
+        prev.map((task) => (task.id == taskId ? updatedTask : task))
       );
     } catch (error) {
       alert(error);
@@ -221,6 +217,9 @@ export default function Tasks() {
     }
   }
   function sortList(sortBy) {
+    if (!sortBy) return;
+    console.log("sort list", sortBy);
+
     if (sortBy == "sort") return;
     if (sortBy == "true" || sortBy == "false") {
       sortByCompleted(sortBy);
@@ -232,11 +231,17 @@ export default function Tasks() {
       );
     else tasksList.sort((a, b) => a[sortBy].localeCompare(b[sortBy]));
     setTasksList([...tasksList]);
+    console.log(sortBy);
+
     navigate(`?sortBy=${sortBy}`);
   }
   function convertIdToInt(id) {
     if (typeof id === "number") return id;
-    return parseInt(id, 16);
+
+    if (typeof id === "string" && id.startsWith("0x")) {
+      return parseInt(id, 16);
+    }
+    return Number(id);
   }
   function sortByCompleted(startWith) {
     if (startWith == "false")
@@ -317,7 +322,7 @@ export default function Tasks() {
         onClick={() => {
           setCondition("byId");
           setCheck(() => (task) => {
-            return task.id == taskID;
+            return Number(task.id) === Number(taskID);
           });
           navigate(`?id=${taskID}`);
         }}
@@ -327,6 +332,7 @@ export default function Tasks() {
       <input
         type="text"
         placeholder="Enter ID"
+        value={taskID}
         onChange={(e) => setTaskID(e.target.value)}
       />
 

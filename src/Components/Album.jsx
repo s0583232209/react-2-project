@@ -5,13 +5,12 @@ import { useForm } from "react-hook-form";
 import NavBar from "./NavBar";
 import "./Album.css";
 import Loading from "./Loading";
-import { AppContext } from "../App";
+import { appContext } from "../App";
 export default function Album() {
   const navigate = useNavigate();
   const href = useHref();
   const { register, handleSubmit } = useForm();
   const [loading, setLoading] = useState(false);
-
   const [photos, setPhotos] = useState(() => {
     if (localStorage.getItem("photos"))
       return JSON.parse(localStorage.getItem("photos"));
@@ -19,18 +18,23 @@ export default function Album() {
   });
   const { id } = useParams();
   const albumId = id;
-  const { userID } = useContext(AppContext);
+  const { userID } = useContext(appContext);
   const [title, setTitle] = useState();
   const [visibleCount, setVisibleCount] = useState(() => {
     if (localStorage.getItem("visibleCountAlbum"))
       return JSON.parse(localStorage.getItem("visibleCountAlbum"));
     else return 4;
   });
+  let user;
+  useEffect(() => {
+    const hrefSplit = href.split("/");
+    user = hrefSplit[hrefSplit.length - 2];
+  }, [href]);
   useEffect(() => {
     async function checkAccess() {
       if (!userID) navigate("/login");
       try {
-        if (userID !== sessionId && userID !== undefined)
+        if (userID !== user && userID !== undefined)
           navigate("/access_denied");
         setLoading(true);
         const response = await fetch(
@@ -41,7 +45,7 @@ export default function Album() {
             "status: " + response.status + "\n from check access"
           );
         const data = await response.json();
-        if (data.userID != userID) navigate("/access_denied");
+        if (data.userId != userID) navigate("/access_denied");
         setTitle(data.title);
       } catch (error) {
         alert(error);
@@ -53,7 +57,6 @@ export default function Album() {
     if (userID) checkAccess();
   }, [userID]);
 
-  useEffect(() => {}, [userID]);
   useEffect(() => {
     localStorage.setItem("visibleCountAlbum", JSON.stringify(visibleCount));
     return () => {

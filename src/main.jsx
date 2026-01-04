@@ -7,8 +7,6 @@ import {
 import App from "./App.jsx";
 let str = "";
 
-console.log(str);
-
 createRoot(document.getElementById("root")).render(
   <Router>
     <App></App>

@@ -187,7 +187,7 @@ export default function Albums() {
   const [searchParams] = useSearchParams();
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
-  const userID = useContext(appContext);
+  const { userID } = useContext(appContext);
   const [useresAlbums, setUsersAlbums] = useState([]);
   const [albumView, setAlbumView] = useState(false);
   const [searchID, setSearchID] = useState(searchParams.get("id") || "");
@@ -202,6 +202,8 @@ export default function Albums() {
     return true;
   });
   useEffect(() => {
+    console.log((id, userID));
+
     if (!userID) navigate("/login", { state: "this should be the url" });
     if (!(id == userID)) navigate("/access_denied");
   }, []);

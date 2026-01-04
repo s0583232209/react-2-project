@@ -27,7 +27,7 @@ export default function Login() {
     localStorage.clear();
   }, []);
 
-  return (
+  return (<>
     <form onSubmit={handleSubmit(login)}>
       <label htmlFor="userName">User Name</label>
       <input
@@ -45,6 +45,14 @@ export default function Login() {
       />
       <p className="errorLog">{error}</p>
       <button>Log In</button>
+      
     </form>
+    <button
+        onClick={() => {
+          navigation("/register");
+        }}
+      >
+        Register
+      </button></>
   );
 }

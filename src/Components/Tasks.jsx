@@ -309,7 +309,7 @@ export default function Tasks() {
             navigate(`?title=${title}`);
           }}
         >
-          By Title
+         Search By Title
         </button>
         <input
           type="text"
@@ -327,7 +327,7 @@ export default function Tasks() {
             navigate(`?id=${taskID}`);
           }}
         >
-          By ID
+          Search By ID
         </button>
         <input
           type="text"

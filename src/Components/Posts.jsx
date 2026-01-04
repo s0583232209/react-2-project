@@ -186,13 +186,14 @@ export default function Posts() {
       <div className={`main-content ${isPostOpen ? "blurred" : ""}`}>
         <h1>Posts</h1>
         <div className="filters">
-          <button onClick={searchByTitle}>by title</button>
+          <button onClick={searchByTitle}>Search By Title</button>
           <input
             value={titleInput}
             onChange={(e) => setTitleInput(e.target.value)}
+            placeholder="enter title"
           />
-          <button onClick={searchById}> by ID </button>
-          <input value={idInput} onChange={(e) => setIdInput(e.target.value)} />
+          <button onClick={searchById}> Search By ID </button>
+          <input value={idInput} onChange={(e) => setIdInput(e.target.value)} placeholder="enter ID" />
           <button onClick={resetFilters}>Back To All Posts</button>
         </div>
 

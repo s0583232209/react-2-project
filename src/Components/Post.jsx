@@ -10,10 +10,8 @@ export default function Post(props) {
   useEffect(() => {
     setNewTitle(props.title);
     setNewBody(props.body);
-    setShowComments(false); // reset comments toggle when post changes
+    setShowComments(false); 
   }, [props.title, props.body, props.id]);
-
-  // Click outside logic
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -90,8 +88,6 @@ export default function Post(props) {
               <button onClick={startEdit}>Edit</button>
             </>
           )}
-
-          {/* Show Comments button only in expanded mode */}
           {props.isExpanded && (
             <>
               <button onClick={toggleComments}>

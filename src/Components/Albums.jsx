@@ -29,8 +29,6 @@ export default function Albums() {
     return true;
   });
   useEffect(() => {
-    console.log((id, userID));
-
     if (!userID) navigate("/login", { state: "this should be the url" });
     if (!(id == userID)) navigate("/access_denied");
   }, []);

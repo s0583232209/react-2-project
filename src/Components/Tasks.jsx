@@ -1,11 +1,4 @@
-import {
-  Outlet,
-  Link,
-  useNavigate,
-  useParams,
-  useLocation,
-  useSearchParams,
-} from "react-router-dom";
+import { Outlet, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import { useForm } from "react-hook-form";
 import Task from "./Task";
@@ -20,8 +13,6 @@ export default function Tasks() {
   const { id } = useParams();
   const { userID } = useContext(appContext);
   const [sortConditionTasks, setSortConditonTasks] = useState(() => {
-    console.log("in set");
-
     return searchParams.get("sortBy") || null;
   });
   const [tasksList, setTasksList] = useState(() => {
@@ -218,8 +209,6 @@ export default function Tasks() {
   }
   function sortList(sortBy) {
     if (!sortBy) return;
-    console.log("sort list", sortBy);
-
     if (sortBy == "sort") return;
     if (sortBy == "true" || sortBy == "false") {
       sortByCompleted(sortBy);
@@ -231,13 +220,10 @@ export default function Tasks() {
       );
     else tasksList.sort((a, b) => a[sortBy].localeCompare(b[sortBy]));
     setTasksList([...tasksList]);
-    console.log(sortBy);
-
     navigate(`?sortBy=${sortBy}`);
   }
   function convertIdToInt(id) {
     if (typeof id === "number") return id;
-
     if (typeof id === "string" && id.startsWith("0x")) {
       return parseInt(id, 16);
     }

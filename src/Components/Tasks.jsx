@@ -87,6 +87,8 @@ export default function Tasks() {
     switch (condition) {
       case "byId":
       case "Id":
+        console.log(taskID);
+
         setCheck(() => (task) => {
           return task.id == taskID;
         });

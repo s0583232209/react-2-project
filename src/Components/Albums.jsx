@@ -177,11 +177,12 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import NavBar from "./NavBar";
 import AlbumLink from "./AlbumLink";
-
-export default function Albums(props) {
+import Loading from "./Loading";
+import { AppContaxt } from "../App";
+export default function Albums() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   console.log(searchParams.get("title"), "searchparams");
@@ -190,7 +191,8 @@ export default function Albums(props) {
     if (!userID) navigate("/login", { state: "this should be the url" });
     if (!(id == userID)) navigate("/access_denied");
   }, []);
-  const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
+  const [loading, setLoading] = useState(false);
+  const userID = useContext(AppContaxt);
   const [useresAlbums, setUsersAlbums] = useState([]);
   const [albumView, setAlbumView] = useState(false);
   const [searchID, setSearchID] = useState(searchParams.get("id") || "");
@@ -220,6 +222,7 @@ export default function Albums(props) {
   useEffect(() => {
     async function getAlbums() {
       try {
+        setLoading(true);
         const response = await fetch(
           `http://localhost:3000/albums/?userId=${userID}`
         );
@@ -232,6 +235,8 @@ export default function Albums(props) {
       } catch (error) {
         alert(error);
         navigate("/");
+      } finally {
+        setLoading(false);
       }
     }
     if (userID) getAlbums();
@@ -276,6 +281,7 @@ export default function Albums(props) {
 
   return (
     <>
+      {loading ? <Loading message="Loading Albums..."></Loading> : null}
       <NavBar></NavBar>
       <h1>Albums</h1>
       <div className="filters">

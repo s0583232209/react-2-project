@@ -187,7 +187,7 @@ export default function Albums() {
   const [searchParams] = useSearchParams();
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
-  const userID = useContext(AppContaxt);
+  const userID = useContext(appContext);
   const [useresAlbums, setUsersAlbums] = useState([]);
   const [albumView, setAlbumView] = useState(false);
   const [searchID, setSearchID] = useState(searchParams.get("id") || "");

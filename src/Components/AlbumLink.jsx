@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   NavLink,
   Outlet,
@@ -7,12 +7,13 @@ import {
   useParams,
 } from "react-router-dom";
 import Album from "./Album";
+import { AppContaxt } from "../App";
 
 export default function AlbumLink(props) {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
+  const { userID } = useContext(AppContaxt);
   const [show, setShow] = useState(false);
   useEffect(() => {
     if (!userID) navigate("/login", { state: "this should be the url" });

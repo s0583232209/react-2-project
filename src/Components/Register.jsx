@@ -1,10 +1,11 @@
-import  { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 export default function Register() {
   sessionStorage.clear();
   localStorage.clear();
+  const [error, setError] = useState();
   const { register, handleSubmit } = useForm();
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
@@ -14,20 +15,29 @@ export default function Register() {
       return;
     }
 
-    const response = await fetch(
-      `http://localhost:3000/users?username=${data.userName}`
-    );
-    const users = await response.json();
-    if (users.length > 0) {
-      return;
+    try {
+      const response = await fetch(
+        `http://localhost:3000/users?username=${data.userName}`
+      );
+      if (!response.ok)
+        throw new Error(
+          "Register faild, please re-check the details or try agian later."
+        );
+
+      const users = await response.json();
+      if (users.length > 0) {
+        throw new Error("This user name isn't valid, please try another one");
+      }
+
+      setNewUser({
+        username: data.userName,
+        password: data.password,
+      });
+
+      setStep(2);
+    } catch (error) {
+      setError(error);
     }
-
-    setNewUser({
-      username: data.userName,
-      password: data.password,
-    });
-
-    setStep(2);
   }
 
   async function submitStep2(data) {
@@ -56,17 +66,21 @@ export default function Register() {
       },
     };
 
-
-    const response = await fetch("http://localhost:3000/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(fullNewUser),
-    });
-
-    const user = await response.json();
-
-    sessionStorage.setItem("current-user", JSON.stringify(user));
-    navigate("/");
+    try {
+      const response = await fetch("http://localhost:3000/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fullNewUser),
+      });
+      if (!response.ok)
+        throw new Error("register faild, please check the details ageain.");
+      const user = await response.json();
+      setUserID(user.id);
+      sessionStorage.setItem("current-user", JSON.stringify(user));
+      navigate("/");
+    } catch (error) {
+      setError(error);
+    }
   }
 
   return (
@@ -94,7 +108,8 @@ export default function Register() {
             id="verifyPassword"
             {...register("verifyPassword")}
           />
-       
+          <p style={"fontColor:red"}>error</p>
+
           <button>Next</button>
         </form>
       )}

@@ -1,23 +1,32 @@
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
-
+import { useState, useContext, useEffect } from "react";
+import { AppContaxt } from "../App";
 export default function Login() {
   const { register, handleSubmit, reset } = useForm();
   const [error, setError] = useState(null);
   const navigation = useNavigate();
+  const { setUserID } = useContext(AppContaxt);
   async function login(data) {
-    const response = await fetch(
-      `http://localhost:3000/users/?username=${data.userName}`
-    );
-    const user = await response.json();
-    if (user.length <= 0 || user[0].website != data.password)
-      return setError("Login failed. Check your details and try again.");
-    sessionStorage.setItem("current-user", JSON.stringify(user[0]));
-    navigation("/");
+    try {
+      const response = await fetch(
+        `http://localhost:3000/users/?username=${data.userName}`
+      );
+      const user = await response.json();
+      if (user.length <= 0 || user[0].website != data.password)
+        throw new Error("Login failed. Check your details and try again.");
+      sessionStorage.setItem("current-user", JSON.stringify(user[0]));
+      setUserID(user[0].id);
+      navigation("/");
+    } catch (error) {
+      setError(error);
+    }
   }
-  sessionStorage.clear();
-  localStorage.clear();
+  useEffect(() => {
+    sessionStorage.clear();
+    localStorage.clear();
+  }, []);
+
   return (
     <form onSubmit={handleSubmit(login)}>
       <label htmlFor="userName">User Name</label>

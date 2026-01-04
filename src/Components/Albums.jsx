@@ -177,10 +177,11 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import NavBar from "./NavBar";
 import AlbumLink from "./AlbumLink";
 import Loading from "./Loading";
+import { AppContaxt } from "../App";
 export default function Albums() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -191,7 +192,7 @@ export default function Albums() {
     if (!(id == userID)) navigate("/access_denied");
   }, []);
   const [loading, setLoading] = useState(false);
-  const userID = JSON.parse(sessionStorage.getItem("current-user"))?.id || null;
+  const userID = useContext(AppContaxt);
   const [useresAlbums, setUsersAlbums] = useState([]);
   const [albumView, setAlbumView] = useState(false);
   const [searchID, setSearchID] = useState(searchParams.get("id") || "");

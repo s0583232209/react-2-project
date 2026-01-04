@@ -1,10 +1,11 @@
 import { useHref, useNavigate, useParams } from "react-router-dom";
 import Photo from "./Photo";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useForm } from "react-hook-form";
 import NavBar from "./NavBar";
 import "./Album.css";
 import Loading from "./Loading";
+import { AppContaxt } from "../App";
 export default function Album() {
   const navigate = useNavigate();
   const href = useHref();
@@ -18,7 +19,7 @@ export default function Album() {
   });
   const { id } = useParams();
   const albumId = id;
-  const [userId, setUserId] = useState();
+  const { userID } = useContext(AppContaxt);
   const [title, setTitle] = useState();
   const [visibleCount, setVisibleCount] = useState(() => {
     if (localStorage.getItem("visibleCountAlbum"))
@@ -27,22 +28,20 @@ export default function Album() {
   });
   useEffect(() => {
     async function checkAccess() {
-      const sessionId =
-        JSON.parse(sessionStorage.getItem("current-user"))?.id || false;
-      if (!sessionId) navigate("/login");
+      if (!userID) navigate("/login");
       try {
-        if (userId !== sessionId && userId !== undefined)
+        if (userID !== sessionId && userID !== undefined)
           navigate("/access_denied");
         setLoading(true);
         const response = await fetch(
-          `http://localhost:3000/albums/${albumId}?useId=${userId}`
+          `http://localhost:3000/albums/${albumId}?useId=${userID}`
         );
         if (!response.ok)
           throw new Error(
             "status: " + response.status + "\n from check access"
           );
         const data = await response.json();
-        if (data.userId != userId) navigate("/access_denied");
+        if (data.userID != userID) navigate("/access_denied");
         setTitle(data.title);
       } catch (error) {
         alert(error);
@@ -51,13 +50,10 @@ export default function Album() {
         setTimeout(() => setLoading(false), 1000);
       }
     }
-    if (userId) checkAccess();
-  }, [userId]);
-  useEffect(() => {
-    let hrefIn = href.split("/");
-    setUserId(hrefIn[hrefIn.length - 2]);
-  }, [href]);
-  useEffect(() => {}, [userId]);
+    if (userID) checkAccess();
+  }, [userID]);
+
+  useEffect(() => {}, [userID]);
   useEffect(() => {
     localStorage.setItem("visibleCountAlbum", JSON.stringify(visibleCount));
     return () => {

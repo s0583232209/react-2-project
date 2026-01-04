@@ -16,6 +16,7 @@ export default function Album() {
       return JSON.parse(localStorage.getItem("photos"));
     else return [];
   });
+
   const { id } = useParams();
   const albumId = id;
   const { userID } = useContext(appContext);
@@ -34,11 +35,10 @@ export default function Album() {
     async function checkAccess() {
       if (!userID) navigate("/login");
       try {
-        if (userID !== user && userID !== undefined)
-          navigate("/access_denied");
+        if (userID !== user && userID !== undefined) navigate("/access_denied");
         setLoading(true);
         const response = await fetch(
-          `http://localhost:3000/albums/${albumId}?useId=${userID}`
+          `http://localhost:3000/albums/${albumId}?userId=${userID}`
         );
         if (!response.ok)
           throw new Error(
